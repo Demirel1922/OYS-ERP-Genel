@@ -13,11 +13,13 @@ import {
   Tag, 
   Shirt,
   ArrowRight,
+  ArrowLeft,
   Database,
   Settings,
   CircleDot
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 import { useMusteriStore } from '@/store/musteriStore';
 import { useTedarikciStore } from '@/store/tedarikciStore';
 import { useDepoStore } from '@/store/depoStore';
@@ -138,12 +140,20 @@ export default function BilgiGirisleri() {
         {/* Başlık */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/dashboard')}
+              className="flex items-center gap-2"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              Dashboard'a Dön
+            </Button>
             <div className="p-2 bg-indigo-600 rounded-lg">
               <Database className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-gray-900">Bilgi Girişleri</h1>
           </div>
-          <p className="text-gray-600 ml-14">
+          <p className="text-gray-600 ml-24">
             ERP sistemi için temel veri tanımlarını yönetin. Sipariş, satınalma ve üretim modüllerinde kullanılacak master data tanımları.
           </p>
         </div>

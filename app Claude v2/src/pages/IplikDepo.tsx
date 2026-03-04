@@ -17,15 +17,87 @@ import { ExcelRow } from "@/components/excel/ExcelRow";
 import { ExcelErrorBox } from "@/components/excel/ExcelErrorBox";
 import { DuplicateConfirmDialog } from "@/components/excel/DuplicateConfirmDialog";
 
-import { getSeed, createMovement } from "@/features/iplik/api";
+import { createMovement } from "@/features/iplik/api";
 import { iplikHareketSchema, type IplikHareketFormData } from "@/features/iplik/schema";
 import type { IplikTanimlar } from "@/features/iplik/types";
 import { ALT_TIP_TO_TIP, ALT_TIPLER } from "@/features/iplik/constants";
 
+// Store entegrasyonu - Bilgi Girişleri modülünden dinamik veri
+import { useTedarikciStore } from "@/store/tedarikciStore";
+import { useDepoStore } from "@/store/depoStore";
+import { useRenkStore } from "@/store/renkStore";
+import { useIplikDetayStore } from "@/store/iplikDetayStore";
+import { useKalinlikStore } from "@/store/kalinlikStore";
+import { useIslemTipiStore } from "@/store/islemTipiStore";
+
 export default function IplikDepo() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const [tanimlar, setTanimlar] = useState<IplikTanimlar | null>(null);
+
+  // Store'lardan dinamik veriler
+  const { tedarikciler, seedData: seedTedarikci } = useTedarikciStore();
+  const { depolar, seedData: seedDepo } = useDepoStore();
+  const { renkler, seedData: seedRenk } = useRenkStore();
+  const { detaylar, kategoriler, cinsler, seedData: seedDetay } = useIplikDetayStore();
+  const { kalinliklar, seedData: seedKalinlik } = useKalinlikStore();
+
+  // Store'ları seed et
+  useEffect(() => {
+    if (tedarikciler.length === 0) seedTedarikci();
+    if (depolar.length === 0) seedDepo();
+    if (renkler.length === 0) seedRenk();
+    if (detaylar.length === 0) seedDetay();
+    if (kalinliklar.length === 0) seedKalinlik();
+  }, []);
+
+  // Store'lardan IplikTanimlar formatına dönüştür
+  const tanimlar = useMemo<IplikTanimlar | null>(() => {
+    // En az bir store doluyana kadar null döndürme - fallback ile başla
+    const aktifTedarikciler = tedarikciler.filter(t => t.durum === 'AKTIF');
+    const aktifDepolar = depolar.filter(d => d.durum === 'AKTIF');
+    const aktifRenkler = renkler.filter(r => r.durum === 'AKTIF');
+    const aktifDetaylar = detaylar.filter(d => d.durum === 'AKTIF');
+    const aktifKalinliklar = kalinliklar.filter(k => k.durum === 'AKTIF');
+
+    // Cins-detay hiyerarşisi
+    const iplikDetaylari = aktifDetaylar.map(d => {
+      const cins = cinsler.find(c => c.id === d.cinsId);
+      const kategori = kategoriler.find(k => cins && k.id === cins.kategoriId);
+      return {
+        id: d.id,
+        detay: d.detayAdi,
+        cinsi: cins?.cinsAdi || '',
+        anaKategori: kategori?.kategoriAdi || '',
+        kalinliklar: [] as string[],
+      };
+    });
+
+    // İplik cinsleri
+    const iplikCinsleri = cinsler
+      .filter(c => c.durum === 'AKTIF')
+      .map(c => ({
+        id: c.id,
+        name: c.cinsAdi,
+        altKey: c.cinsAdi,
+      }));
+
+    // Kalınlık-cins eşlemesi (her cins için tüm kalınlıklar kullanılabilir olarak ayarla)
+    const allowedKalinlikByIplikCinsiAltKey: Record<string, string[]> = {};
+    const kalinlikStrs = aktifKalinliklar.map(k => `${k.birim} ${k.deger}${k.ozellik ? ` ${k.ozellik}` : ''}`);
+    iplikCinsleri.forEach(c => {
+      allowedKalinlikByIplikCinsiAltKey[c.altKey] = kalinlikStrs;
+    });
+
+    return {
+      tedarikciler: aktifTedarikciler.map(t => t.tedarikciAdi),
+      depolar: aktifDepolar.map(d => ({ id: d.id, name: d.depoAdi })),
+      renkler: aktifRenkler.map(r => ({ id: r.id, kod: r.id, name: r.renkAdi })),
+      iplikDetaylari,
+      iplikCinsleri,
+      altTipToTip: ALT_TIP_TO_TIP,
+      allowedKalinlikByIplikCinsiAltKey,
+    };
+  }, [tedarikciler, depolar, renkler, detaylar, kalinliklar, cinsler, kategoriler]);
 
   const [loading, setLoading] = useState(false);
   const [dupOpen, setDupOpen] = useState(false);
@@ -62,12 +134,6 @@ export default function IplikDepo() {
   const tedarikci = useWatch({ control, name: "tedarikci" });
   const iplikKalinlik = useWatch({ control, name: "iplikKalinlik" });
   const iplikCinsiId = useWatch({ control, name: "iplikCinsiId" });
-
-  useEffect(() => {
-    getSeed()
-      .then(setTanimlar)
-      .catch(() => toast.error("Tanım verileri yüklenemedi"));
-  }, []);
 
   useEffect(() => {
     if (!altTip) return;

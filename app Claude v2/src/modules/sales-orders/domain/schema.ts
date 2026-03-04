@@ -4,8 +4,8 @@ import { isBefore, parseISO } from 'date-fns';
 const salesOrderLineSchema = z.object({
   id: z.string(),
   product_name: z.string().min(1, 'Ürün adı zorunlu'),
-  gender: z.enum(['male', 'female', 'child', 'baby']),
-  sock_type: z.enum(['soket', 'kisa_konc', 'diz_alti', 'diz_ustu', 'babet', 'termal']),
+  gender: z.string().min(1, 'Cinsiyet zorunlu'),
+  sock_type: z.string().min(1, 'Tip zorunlu'),
   color: z.string().min(1, 'Renk zorunlu'),
   size: z.string().min(1, 'Beden zorunlu'),
   quantity: z.number().min(1, 'Miktar en az 1 olmalı'),

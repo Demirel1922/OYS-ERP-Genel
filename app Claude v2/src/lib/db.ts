@@ -1,10 +1,9 @@
 import Dexie from 'dexie';
-import type { Table } from 'dexie';
 import type { SalesOrder, PriceAuditLog } from '@/modules/sales-orders/domain/types';
 
 export class OysDatabase extends Dexie {
-  salesOrders!: Table<SalesOrder>;
-  priceAuditLogs!: Table<PriceAuditLog>;
+  salesOrders!: Dexie.Table<SalesOrder>;
+  priceAuditLogs!: Dexie.Table<PriceAuditLog>;
 
   constructor() {
     super('OysDatabase');

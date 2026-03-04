@@ -1,3 +1,4 @@
+import { Header } from '@/components/common/Header';
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -147,7 +148,9 @@ export function AnalyticsPage() {
   }
 
   return (
-    <div className="container mx-auto p-4 space-y-6">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="container mx-auto p-4 space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <Button variant="outline" size="icon" onClick={() => navigate('/module/4/siparis')}>
@@ -354,6 +357,7 @@ export function AnalyticsPage() {
           </CardContent>
         </Card>
       )}
+      </div>
     </div>
   );
 }

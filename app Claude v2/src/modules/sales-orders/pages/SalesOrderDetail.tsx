@@ -1,3 +1,4 @@
+import { Header } from '@/components/common/Header';
 import { useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -103,7 +104,9 @@ export function SalesOrderDetail() {
   const dialogContent = getActionDialogContent();
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="container mx-auto p-4">
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -245,6 +248,7 @@ export function SalesOrderDetail() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

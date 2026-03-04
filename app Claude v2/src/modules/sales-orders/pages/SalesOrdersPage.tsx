@@ -29,6 +29,8 @@ import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog';
 
+import { Header } from '@/components/common/Header';
+
 const STATUS_COLORS: Record<OrderStatus, string> = {
   draft: 'bg-slate-100 text-slate-700 border border-slate-300',
   approved: 'bg-blue-100 text-blue-700 border border-blue-300',
@@ -222,7 +224,9 @@ export function SalesOrdersPage() {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="container mx-auto p-4">
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -296,6 +300,7 @@ export function SalesOrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

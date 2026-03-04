@@ -32,6 +32,8 @@ import { useCreateSalesOrder } from '@/modules/sales-orders/hooks/useCreateSales
 import { calculateLineTotals, calculateOrderTotals } from '@/modules/sales-orders/services/orderService';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 
+import { Header } from '@/components/common/Header';
+
 // Store entegrasyonu - Bilgi Girişleri modülünden dinamik veri
 import { useMusteriStore } from '@/store/musteriStore';
 import { useRenkStore } from '@/store/renkStore';
@@ -305,7 +307,9 @@ export function SalesOrderNew() {
   }, [form, buildOrderPayload, createOrder, customOrderNo, generateAuto, navigate, confirmedLines]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="container mx-auto p-4">
       <Card>
         <CardHeader className="pb-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -673,6 +677,7 @@ export function SalesOrderNew() {
           </Form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
