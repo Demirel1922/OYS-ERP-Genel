@@ -43,7 +43,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Search, Users, ArrowLeft, Building2, Globe } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Users, ArrowLeft, Building2, Globe, MoreHorizontal, Download } from 'lucide-react';
 import { useMusteriStore } from '@/store/musteriStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -86,6 +86,8 @@ export default function Musteriler() {
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [detailMusteri, setDetailMusteri] = useState<Musteri | null>(null);
   const [editingMusteri, setEditingMusteri] = useState<Musteri | null>(null);
   const [deletingMusteri, setDeletingMusteri] = useState<Musteri | null>(null);
   
@@ -190,6 +192,24 @@ export default function Musteriler() {
     }
   };
 
+  const handleExcelExport = () => {
+    const headers = ['Örmeci No', 'Kısa Kod', 'Ünvan', 'Bölge', 'Ülke', 'Adres', 'Vergi No', 'Ödeme Tipi', 'Vade', 'Durum'];
+    const rows = filteredMusteriler.map(m => [
+      m.ormeciMusteriNo, m.musteriKisaKod, m.musteriUnvan,
+      m.bolge === 'IHRACAT' ? 'İhracat' : 'İç Piyasa',
+      m.ulke, m.adres || '', m.vergiNo || '', m.odemeTipi,
+      `${m.odemeVadesiDeger} ${m.odemeVadesiBirim === 'GUN' ? 'gün' : 'ay'}`,
+      m.durum === 'AKTIF' ? 'Aktif' : 'Pasif'
+    ]);
+    const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(c => `"${c}"`).join(';')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'musteriler.csv'; a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Müşteri listesi indirildi');
+  };
+
   const handleDeleteClick = (musteri: Musteri) => {
     setDeletingMusteri(musteri);
     setIsDeleteDialogOpen(true);
@@ -271,6 +291,10 @@ export default function Musteriler() {
                   className="pl-10 w-64"
                 />
               </div>
+              <Button variant="outline" onClick={handleExcelExport} className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Excel
+              </Button>
               <Button onClick={() => handleOpenDialog()} className="flex items-center gap-2">
                 <Plus className="w-4 h-4" />
                 Yeni Müşteri
@@ -328,6 +352,7 @@ export default function Musteriler() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => { setDetailMusteri(musteri); setIsDetailOpen(true); }} title="Bilgiler"><MoreHorizontal className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(musteri)} title="Düzenle">
                               <Edit className="w-4 h-4" />
                             </Button>
@@ -547,6 +572,37 @@ export default function Musteriler() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Müşteri Bilgi Kartı Dialog */}
+        <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Building2 className="w-5 h-5" />
+                Müşteri Kartı
+              </DialogTitle>
+            </DialogHeader>
+            {detailMusteri && (
+              <div className="space-y-3 py-2 text-sm">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                  <span className="text-gray-500">Örmeci No:</span><span className="font-medium">{detailMusteri.ormeciMusteriNo}</span>
+                  <span className="text-gray-500">Kısa Kod:</span><span className="font-medium">{detailMusteri.musteriKisaKod}</span>
+                  <span className="text-gray-500">Ünvan:</span><span className="font-medium">{detailMusteri.musteriUnvan}</span>
+                  <span className="text-gray-500">Bölge:</span><span>{detailMusteri.bolge === 'IHRACAT' ? 'İhracat' : 'İç Piyasa'}</span>
+                  <span className="text-gray-500">Ülke:</span><span>{detailMusteri.ulke}</span>
+                  <span className="text-gray-500">Adres:</span><span>{detailMusteri.adres || '-'}</span>
+                  <span className="text-gray-500">Vergi No:</span><span>{detailMusteri.vergiNo || '-'}</span>
+                  <span className="text-gray-500">Ödeme Tipi:</span><span>{detailMusteri.odemeTipi}</span>
+                  <span className="text-gray-500">Vade:</span><span>{detailMusteri.odemeVadesiDeger} {detailMusteri.odemeVadesiBirim === 'GUN' ? 'gün' : 'ay'}</span>
+                  <span className="text-gray-500">Durum:</span><span>{detailMusteri.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}</span>
+                </div>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsDetailOpen(false)}>Kapat</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

@@ -104,15 +104,6 @@ export default function BilgiGirisleri() {
       count: depolar.length,
     },
     {
-      id: 'tedarikci-kategorileri',
-      title: 'Tedarikçi Kategorileri',
-      description: 'Tedarikçi kategorilerini yönetin. Tedarikçi kartlarında çoklu seçim yapılır.',
-      icon: Tag,
-      route: '/module/1/tedarikci-kategorileri',
-      color: 'bg-pink-500',
-      count: kategoriler.length,
-    },
-    {
       id: 'genel-corap-bilgileri',
       title: 'Genel Çorap Bilgileri',
       description: 'Bedenler, Tipler ve Cinsiyetler listelerini yönetin. Sipariş ve üretimde kullanılır.',
@@ -208,7 +199,7 @@ export default function BilgiGirisleri() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-teal-600 font-medium">Tanım Değerleri</p>
+                  <p className="text-sm text-teal-600 font-medium">Çorap Bilgileri</p>
                   <p className="text-2xl font-bold text-teal-900">{items.length}</p>
                 </div>
                 <Settings className="w-8 h-8 text-teal-400" />

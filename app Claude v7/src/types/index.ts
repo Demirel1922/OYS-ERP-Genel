@@ -37,7 +37,7 @@ export interface Module {
 export type Bolge = 'IHRACAT' | 'IC_PIYASA';
 export type OdemeVadesiBirim = 'GUN' | 'AY';
 export type DepoTipi = 'IC_DEPO' | 'DIS_DEPO';
-export type LookupType = 'BEDEN' | 'TIP' | 'CINSIYET';
+export type LookupType = 'BEDEN' | 'TIP' | 'CINSIYET' | 'BIRIM';
 
 export interface Musteri {
   id: string;
@@ -102,6 +102,7 @@ export interface LookupItem {
   ad: string;
   durum: 'AKTIF' | 'PASIF';
   sira?: number;
+  carpan?: number; // Birim çarpanı (ör: Düzine=12, 3lü Paket=3)
   createdAt: string;
   updatedAt: string;
 }

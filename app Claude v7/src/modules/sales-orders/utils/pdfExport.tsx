@@ -126,6 +126,7 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
     confirmed_termin: order?.confirmed_termin,
     shipped_at: order?.shipped_at,
     payment_terms: order?.payment_terms || '',
+    incoterm: order?.incoterm || '',
     currency: order?.currency || 'TL',
     status: order?.status || 'draft',
     lines: Array.isArray(order?.lines) ? order.lines : []
@@ -171,6 +172,7 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
           <View style={s.row}><Text style={s.label}>Onaylı Termin / Confirmed:</Text><Text style={s.value}>{formatDate(safeOrder.confirmed_termin)}</Text></View>
           {safeOrder.shipped_at && <View style={s.row}><Text style={s.label}>Gönderilme Tarihi / Shipped:</Text><Text style={s.value}>{formatDate(safeOrder.shipped_at)}</Text></View>}
           <View style={s.row}><Text style={s.label}>Ödeme Koşulları / Payment:</Text><Text style={s.value}>{safeOrder.payment_terms}</Text></View>
+          {safeOrder.incoterm && <View style={s.row}><Text style={s.label}>Teslim Şekli / Incoterm:</Text><Text style={s.value}>{safeOrder.incoterm}</Text></View>}
         </View>
 
         {/* Sipariş Kalemleri */}

@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/common/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,6 +48,107 @@ import {
 import { Plus, Edit, Trash2, Search, Truck, ArrowLeft, Building2, Globe, Tag } from 'lucide-react';
 import { useTedarikciStore } from '@/store/tedarikciStore';
 import { useTedarikciKategoriStore } from '@/store/tedarikciKategoriStore';
+import type { TedarikciKategorisi, TedarikciKategorisiFormData } from '@/types';
+
+// Inline Kategoriler Tab bileşeni
+function KategorilerInlineTab() {
+  const { kategoriler, addKategori, updateKategori, deleteKategori, pasifYap, aktifYap, seedData: seedKat } = useTedarikciKategoriStore();
+  const [isOpen, setIsOpen] = useState(false);
+  const [editKat, setEditKat] = useState<TedarikciKategorisi | null>(null);
+  const [form, setForm] = useState<TedarikciKategorisiFormData>({ kategoriKodu: '', kategoriAdi: '', aciklama: '' });
+  const [search, setSearch] = useState('');
+
+  useEffect(() => { if (kategoriler.length === 0) seedKat(); }, []);
+
+  const filtered = kategoriler.filter(k => 
+    k.kategoriAdi.toLowerCase().includes(search.toLowerCase()) || 
+    (k.kategoriKodu || '').toLowerCase().includes(search.toLowerCase())
+  );
+
+  const openDialog = (k?: TedarikciKategorisi) => {
+    if (k) { setEditKat(k); setForm({ kategoriKodu: k.kategoriKodu || '', kategoriAdi: k.kategoriAdi, aciklama: k.aciklama || '' }); }
+    else { setEditKat(null); setForm({ kategoriKodu: '', kategoriAdi: '', aciklama: '' }); }
+    setIsOpen(true);
+  };
+
+  const handleSave = () => {
+    if (!form.kategoriAdi.trim()) { toast.error('Kategori adı zorunlu'); return; }
+    const r = editKat ? updateKategori(editKat.id, form) : addKategori(form);
+    if (r.success) { toast.success(editKat ? 'Güncellendi' : 'Eklendi'); setIsOpen(false); }
+    else toast.error(r.error);
+  };
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
+        <CardTitle className="flex items-center gap-2">Kategoriler <Badge variant="secondary">{filtered.length}</Badge></CardTitle>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input placeholder="Kategori ara..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 w-48" />
+          </div>
+          <Button onClick={() => openDialog()} className="flex items-center gap-2"><Plus className="w-4 h-4" /> Yeni Kategori</Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Kod</TableHead>
+                <TableHead>Ad</TableHead>
+                <TableHead>Açıklama</TableHead>
+                <TableHead className="text-center">Durum</TableHead>
+                <TableHead className="text-right">İşlemler</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.length === 0 ? (
+                <TableRow><TableCell colSpan={5} className="text-center py-8 text-gray-500">Kategori bulunamadı.</TableCell></TableRow>
+              ) : (
+                filtered.map((k) => (
+                  <TableRow key={k.id} className={k.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}>
+                    <TableCell><Badge variant="outline" className="font-mono">{k.kategoriKodu || '-'}</Badge></TableCell>
+                    <TableCell className="font-medium">{k.kategoriAdi}</TableCell>
+                    <TableCell className="text-gray-600">{k.aciklama || '-'}</TableCell>
+                    <TableCell className="text-center">
+                      <Badge className={k.durum === 'AKTIF' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-600'}>{k.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => openDialog(k)}><Edit className="w-4 h-4" /></Button>
+                        {k.durum === 'AKTIF' ? (
+                          <Button variant="ghost" size="sm" onClick={() => { pasifYap(k.id); toast.success('Pasif yapıldı'); }} className="text-amber-600">Pasif Yap</Button>
+                        ) : (
+                          <>
+                            <Button variant="ghost" size="sm" onClick={() => { aktifYap(k.id); toast.success('Aktif yapıldı'); }} className="text-green-600">Aktif Yap</Button>
+                            <Button variant="ghost" size="sm" onClick={() => { deleteKategori(k.id); toast.success('Silindi'); }} className="text-red-600"><Trash2 className="w-4 h-4" /></Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>{editKat ? 'Kategori Düzenle' : 'Yeni Kategori'}</DialogTitle></DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2"><Label>Kategori Kodu</Label><Input value={form.kategoriKodu || ''} onChange={(e) => setForm({ ...form, kategoriKodu: e.target.value })} placeholder="örn: IPLIK" /></div>
+            <div className="space-y-2"><Label>Kategori Adı *</Label><Input value={form.kategoriAdi} onChange={(e) => setForm({ ...form, kategoriAdi: e.target.value })} placeholder="Kategori adı" /></div>
+            <div className="space-y-2"><Label>Açıklama</Label><Input value={form.aciklama || ''} onChange={(e) => setForm({ ...form, aciklama: e.target.value })} placeholder="Açıklama" /></div>
+          </div>
+          <DialogFooter><Button variant="outline" onClick={() => setIsOpen(false)}>İptal</Button><Button onClick={handleSave}>{editKat ? 'Güncelle' : 'Ekle'}</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import type { Tedarikci, TedarikciFormData } from '@/types';
@@ -263,6 +365,13 @@ export default function Tedarikciler() {
           </div>
         </div>
 
+        <Tabs defaultValue="liste" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="liste">Tedarikçi Listesi</TabsTrigger>
+            <TabsTrigger value="kategoriler">Kategoriler</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="liste">
         {/* Tedarikçi Listesi */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between flex-wrap gap-4">
@@ -397,6 +506,12 @@ export default function Tedarikciler() {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="kategoriler">
+            <KategorilerInlineTab />
+          </TabsContent>
+        </Tabs>
 
         {/* Ekle/Düzenle Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>

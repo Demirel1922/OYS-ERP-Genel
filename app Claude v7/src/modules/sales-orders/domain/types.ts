@@ -31,6 +31,7 @@ export interface SalesOrder {
   confirmed_termin: string;
   shipped_at?: string;
   payment_terms: string;
+  incoterm?: string;
   currency: Currency;
   unit_price: string;
   lines: SalesOrderLine[];

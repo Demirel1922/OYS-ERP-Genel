@@ -37,7 +37,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Plus, Edit, Trash2, Search, Footprints, ArrowLeft, Ruler, Users } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Footprints, ArrowLeft, Ruler, Users, Package } from 'lucide-react';
 import { useLookupStore } from '@/store/lookupStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -47,6 +47,7 @@ const LOOKUP_TYPES: { id: LookupType; label: string; labelTekil: string; icon: R
   { id: 'BEDEN', label: 'Beden', labelTekil: 'Beden', icon: Ruler, description: 'Çorap beden ölçüleri (35-38, 39-42 vb.)' },
   { id: 'TIP', label: 'Tip', labelTekil: 'Tip', icon: Footprints, description: 'Çorap tipleri (Patik, Kısa, Diz Altı vb.)' },
   { id: 'CINSIYET', label: 'Cinsiyet', labelTekil: 'Cinsiyet', icon: Users, description: 'Cinsiyet kategorileri (Erkek, Kadın, Unisex vb.)' },
+  { id: 'BIRIM', label: 'Birim', labelTekil: 'Birim', icon: Package, description: 'Sipariş birimleri (Çift, Düzine, Paket vb.)' },
 ];
 
 export default function GenelCorapBilgileri() {
@@ -98,7 +99,8 @@ export default function GenelCorapBilgileri() {
         kod: item.kod,
         ad: item.ad,
         sira: item.sira,
-      });
+        carpan: item.carpan,
+      } as any);
     } else {
       resetForm();
     }
@@ -207,6 +209,7 @@ export default function GenelCorapBilgileri() {
                 <TableHead>Sıra</TableHead>
                 <TableHead>Kod</TableHead>
                 <TableHead>Ad</TableHead>
+                {type === 'BIRIM' && <TableHead className="text-center">Çift Çarpanı</TableHead>}
                 <TableHead className="text-center">Durum</TableHead>
                 <TableHead className="text-right">İşlemler</TableHead>
               </TableRow>
@@ -214,7 +217,7 @@ export default function GenelCorapBilgileri() {
             <TableBody>
               {filteredItems.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                     {searchTerm ? 'Arama sonucu bulunamadı.' : `Henüz ${typeInfo?.label.toLowerCase()} eklenmemiş.`}
                   </TableCell>
                 </TableRow>
@@ -234,6 +237,11 @@ export default function GenelCorapBilgileri() {
                       </TableCell>
                       <TableCell className="font-mono text-sm">{item.kod}</TableCell>
                       <TableCell className="font-medium">{item.ad}</TableCell>
+                      {type === 'BIRIM' && (
+                        <TableCell className="text-center">
+                          <Badge variant="outline">{item.carpan || 1}x</Badge>
+                        </TableCell>
+                      )}
                       <TableCell className="text-center">
                         <Badge className={item.durum === 'AKTIF' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' : 'bg-gray-100 text-gray-600'}>
                           {item.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}
@@ -292,7 +300,7 @@ export default function GenelCorapBilgileri() {
         {/* Tabs */}
         <Card>
           <CardHeader>
-            <CardTitle>Lookup Listeleri</CardTitle>
+            <CardTitle>Çorap Bilgileri</CardTitle>
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
@@ -375,6 +383,24 @@ export default function GenelCorapBilgileri() {
                   placeholder="örn: 1"
                 />
               </div>
+              {activeTab === 'BIRIM' && (
+                <div className="space-y-2">
+                  <Label htmlFor="carpan">
+                    Çift Çarpanı <span className="text-gray-500">(Bu birimde kaç çift var?)</span>
+                  </Label>
+                  <Input
+                    id="carpan"
+                    type="number"
+                    min={1}
+                    value={(formData as any).carpan || ''}
+                    onChange={(e) => setFormData({ 
+                      ...formData, 
+                      carpan: e.target.value ? parseInt(e.target.value) : undefined 
+                    } as any)}
+                    placeholder="örn: 3 (3'lü Paket için)"
+                  />
+                </div>
+              )}
             </div>
 
             <DialogFooter>

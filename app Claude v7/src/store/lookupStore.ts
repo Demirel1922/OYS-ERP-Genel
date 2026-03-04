@@ -56,6 +56,14 @@ const defaultItems: LookupItem[] = [
   { id: 'c3', lookupType: 'CINSIYET', kod: 'CINSIYET_UNISEX', ad: 'Unisex', sira: 3, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
   { id: 'c4', lookupType: 'CINSIYET', kod: 'CINSIYET_COCUK', ad: 'Çocuk', sira: 4, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
   { id: 'c5', lookupType: 'CINSIYET', kod: 'CINSIYET_BEBEK', ad: 'Bebek', sira: 5, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+
+  // --- BİRİMLER ---
+  { id: 'br1', lookupType: 'BIRIM', kod: 'BIRIM_CIFT', ad: 'Çift', sira: 1, carpan: 1, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'br2', lookupType: 'BIRIM', kod: 'BIRIM_DUZINE', ad: 'Düzine', sira: 2, carpan: 12, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'br3', lookupType: 'BIRIM', kod: 'BIRIM_TEKLI', ad: 'Tekli Paket', sira: 3, carpan: 1, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'br4', lookupType: 'BIRIM', kod: 'BIRIM_2LI', ad: '2\'li Paket', sira: 4, carpan: 2, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'br5', lookupType: 'BIRIM', kod: 'BIRIM_3LU', ad: '3\'lü Paket', sira: 5, carpan: 3, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'br6', lookupType: 'BIRIM', kod: 'BIRIM_KOLI', ad: 'Koli', sira: 6, carpan: 24, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
 ];
 
 export const useLookupStore = create<LookupState>()(

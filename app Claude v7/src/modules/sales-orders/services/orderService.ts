@@ -93,7 +93,8 @@ export function calculateLineTotals(
   const lineTotalPairs = line.quantity * multiplier;
   const priceSource = line.unit_price || headerUnitPrice || '0';
   const priceNum = parsePriceString(priceSource);
-  const lineAmount = lineTotalPairs * priceNum;
+  // Tutar = Miktar × Birim Fiyat (çift ile çarpılmaz!)
+  const lineAmount = line.quantity * priceNum;
   return {
     line_total_pairs: lineTotalPairs,
     line_amount: lineAmount.toFixed(2),

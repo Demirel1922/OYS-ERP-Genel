@@ -89,6 +89,7 @@ export function SalesOrderNew() {
       requested_termin: '',
       confirmed_termin: '',
       payment_terms: '',
+      incoterm: '',
       currency: 'TRY',
       notes: '',
       internal_notes: '',
@@ -260,6 +261,7 @@ export function SalesOrderNew() {
       requested_termin: data.requested_termin,
       confirmed_termin: data.confirmed_termin,
       payment_terms: data.payment_terms,
+      incoterm: data.incoterm || '',
       currency: mainCurrency as any,
       unit_price: orderLines.length > 0 ? orderLines[0].unit_price : '0',
       lines: orderLines,
@@ -377,7 +379,7 @@ export function SalesOrderNew() {
                     }} value={field.value}>
                       <FormControl><SelectTrigger><SelectValue placeholder="Müşteri seçin" /></SelectTrigger></FormControl>
                       <SelectContent>
-                        {aktifMusteriler.map((m) => <SelectItem key={m.id} value={m.id}>{m.musteriKisaKod} - {m.musteriUnvan}</SelectItem>)}
+                        {aktifMusteriler.map((m) => <SelectItem key={m.id} value={m.id}>{m.ormeciMusteriNo}</SelectItem>)}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -426,6 +428,24 @@ export function SalesOrderNew() {
                     <FormMessage />
                   </FormItem>
                 )} />
+
+                <FormField control={form.control} name="incoterm" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Teslim Şekli (Incoterm)</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                      <FormControl>
+                        <SelectTrigger><SelectValue placeholder="Seçiniz" /></SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="EXW">EXW</SelectItem>
+                        <SelectItem value="FOB">FOB</SelectItem>
+                        <SelectItem value="CIF">CIF</SelectItem>
+                        <SelectItem value="DDP">DDP</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )} />
               </div>
 
               {/* Siparis Kalemleri */}
@@ -447,13 +467,14 @@ export function SalesOrderNew() {
                           <div className="flex items-center gap-1 text-green-700 text-xs font-medium shrink-0">
                             <Check className="w-3 h-3" /> Eklendi
                           </div>
-                          <div className="flex-1 grid grid-cols-2 md:grid-cols-8 gap-2 text-sm">
+                          <div className="flex-1 grid grid-cols-2 md:grid-cols-9 gap-2 text-sm">
                             <div><span className="text-gray-500 text-xs block">Ürün</span><span className="font-medium">{watchedLine?.product_name || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Cinsiyet</span><span>{watchedLine?.gender || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Tip</span><span>{watchedLine?.sock_type || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Renk</span><span>{watchedLine?.color || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Beden</span><span>{watchedLine?.size || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Miktar</span><span className="font-medium">{formatQuantity(watchedLine?.quantity ?? 0)}</span></div>
+                            <div><span className="text-gray-500 text-xs block">Çift</span><span className="font-medium">{formatQuantity(watchedLine?.line_total_pairs ?? 0)}</span></div>
                             <div><span className="text-gray-500 text-xs block">Birim Fiyat</span><span>{watchedLine?.unit_price || '0'} {lineCurrency}</span></div>
                             <div><span className="text-gray-500 text-xs block">Tutar</span><span className="font-bold">{formatMoney2(watchedLine?.line_amount, lineCurrency)}</span></div>
                           </div>
