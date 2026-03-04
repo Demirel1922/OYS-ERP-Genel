@@ -181,6 +181,12 @@ export const useTedarikciStore = create<TedarikciState>()(
           },
         ];
 
+        const { tedarikciler } = get();
+        if (tedarikciler.length > 0) {
+          const updated = tedarikciler.map((t: any) => ({ ...t, durum: t.durum || 'AKTIF' }));
+          set({ tedarikciler: updated });
+          return;
+        }
         set({ tedarikciler: seedTedarikciler });
       },
     }),

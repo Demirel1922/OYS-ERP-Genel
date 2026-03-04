@@ -183,6 +183,12 @@ export const useDepoStore = create<DepoState>()(
           },
         ];
 
+        const { depolar } = get();
+        if (depolar.length > 0) {
+          const updated = depolar.map((d: any) => ({ ...d, durum: d.durum || 'AKTIF' }));
+          set({ depolar: updated });
+          return;
+        }
         set({ depolar: seedDepolar });
       },
     }),

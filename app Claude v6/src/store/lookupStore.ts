@@ -14,6 +14,8 @@ interface LookupState {
   addItem: (data: LookupItemFormData) => { success: boolean; error?: string };
   updateItem: (id: string, data: Partial<LookupItemFormData>) => { success: boolean; error?: string };
   deleteItem: (id: string) => { success: boolean; error?: string };
+  pasifYap: (id: string) => { success: boolean; error?: string };
+  aktifYap: (id: string) => { success: boolean; error?: string };
   getItemById: (id: string) => LookupItem | undefined;
   getItemsByType: (type: LookupType) => LookupItem[];
   getSortedItemsByType: (type: LookupType) => LookupItem[];
@@ -30,30 +32,30 @@ const getCurrentTimestamp = () => new Date().toISOString();
 // Varsayılan lookup verileri (seed data)
 const defaultItems: LookupItem[] = [
   // --- BEDENLER ---
-  { id: 'b1', lookupType: 'BEDEN', kod: 'BEDEN_35_38', ad: '35-38', sira: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b2', lookupType: 'BEDEN', kod: 'BEDEN_39_42', ad: '39-42', sira: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b3', lookupType: 'BEDEN', kod: 'BEDEN_43_46', ad: '43-46', sira: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b4', lookupType: 'BEDEN', kod: 'BEDEN_47_50', ad: '47-50', sira: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b5', lookupType: 'BEDEN', kod: 'BEDEN_0_6', ad: '0-6 Ay', sira: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b6', lookupType: 'BEDEN', kod: 'BEDEN_6_12', ad: '6-12 Ay', sira: 6, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b7', lookupType: 'BEDEN', kod: 'BEDEN_12_18', ad: '12-18 Ay', sira: 7, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'b8', lookupType: 'BEDEN', kod: 'BEDEN_18_24', ad: '18-24 Ay', sira: 8, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b1', lookupType: 'BEDEN', kod: 'BEDEN_35_38', ad: '35-38', sira: 1, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b2', lookupType: 'BEDEN', kod: 'BEDEN_39_42', ad: '39-42', sira: 2, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b3', lookupType: 'BEDEN', kod: 'BEDEN_43_46', ad: '43-46', sira: 3, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b4', lookupType: 'BEDEN', kod: 'BEDEN_47_50', ad: '47-50', sira: 4, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b5', lookupType: 'BEDEN', kod: 'BEDEN_0_6', ad: '0-6 Ay', sira: 5, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b6', lookupType: 'BEDEN', kod: 'BEDEN_6_12', ad: '6-12 Ay', sira: 6, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b7', lookupType: 'BEDEN', kod: 'BEDEN_12_18', ad: '12-18 Ay', sira: 7, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'b8', lookupType: 'BEDEN', kod: 'BEDEN_18_24', ad: '18-24 Ay', sira: 8, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
   
   // --- TİPLER ---
-  { id: 't1', lookupType: 'TIP', kod: 'TIP_PATIK', ad: 'Patik Çorap', sira: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't2', lookupType: 'TIP', kod: 'TIP_KISA', ad: 'Kısa Çorap', sira: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't3', lookupType: 'TIP', kod: 'TIP_ORTA', ad: 'Orta Boy Çorap', sira: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't4', lookupType: 'TIP', kod: 'TIP_DIZ', ad: 'Diz Altı Çorap', sira: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't5', lookupType: 'TIP', kod: 'TIP_DIZUSTU', ad: 'Diz Üstü Çorap', sira: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't6', lookupType: 'TIP', kod: 'TIP_TAYT', ad: 'Tayt', sira: 6, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 't7', lookupType: 'TIP', kod: 'TIP_CORAP_TAYT', ad: 'Çorap Tayt', sira: 7, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't1', lookupType: 'TIP', kod: 'TIP_PATIK', ad: 'Patik Çorap', sira: 1, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't2', lookupType: 'TIP', kod: 'TIP_KISA', ad: 'Kısa Çorap', sira: 2, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't3', lookupType: 'TIP', kod: 'TIP_ORTA', ad: 'Orta Boy Çorap', sira: 3, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't4', lookupType: 'TIP', kod: 'TIP_DIZ', ad: 'Diz Altı Çorap', sira: 4, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't5', lookupType: 'TIP', kod: 'TIP_DIZUSTU', ad: 'Diz Üstü Çorap', sira: 5, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't6', lookupType: 'TIP', kod: 'TIP_TAYT', ad: 'Tayt', sira: 6, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 't7', lookupType: 'TIP', kod: 'TIP_CORAP_TAYT', ad: 'Çorap Tayt', sira: 7, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
   
   // --- CİNSİYETLER ---
-  { id: 'c1', lookupType: 'CINSIYET', kod: 'CINSIYET_ERKEK', ad: 'Erkek', sira: 1, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'c2', lookupType: 'CINSIYET', kod: 'CINSIYET_KADIN', ad: 'Kadın', sira: 2, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'c3', lookupType: 'CINSIYET', kod: 'CINSIYET_UNISEX', ad: 'Unisex', sira: 3, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'c4', lookupType: 'CINSIYET', kod: 'CINSIYET_COCUK', ad: 'Çocuk', sira: 4, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
-  { id: 'c5', lookupType: 'CINSIYET', kod: 'CINSIYET_BEBEK', ad: 'Bebek', sira: 5, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'c1', lookupType: 'CINSIYET', kod: 'CINSIYET_ERKEK', ad: 'Erkek', sira: 1, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'c2', lookupType: 'CINSIYET', kod: 'CINSIYET_KADIN', ad: 'Kadın', sira: 2, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'c3', lookupType: 'CINSIYET', kod: 'CINSIYET_UNISEX', ad: 'Unisex', sira: 3, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'c4', lookupType: 'CINSIYET', kod: 'CINSIYET_COCUK', ad: 'Çocuk', sira: 4, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+  { id: 'c5', lookupType: 'CINSIYET', kod: 'CINSIYET_BEBEK', ad: 'Bebek', sira: 5, durum: 'AKTIF', createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
 ];
 
 export const useLookupStore = create<LookupState>()(
@@ -84,6 +86,7 @@ export const useLookupStore = create<LookupState>()(
         const yeniItem: LookupItem = {
           id: generateId(),
           ...data,
+          durum: 'AKTIF',
           createdAt: getCurrentTimestamp(),
           updatedAt: getCurrentTimestamp(),
         };
@@ -166,6 +169,26 @@ export const useLookupStore = create<LookupState>()(
         return { success: true };
       },
 
+      pasifYap: (id) => {
+        const { items } = get();
+        const item = items.find(i => i.id === id);
+        if (!item) return { success: false, error: 'Kayıt bulunamadı.' };
+        set(state => ({
+          items: state.items.map(i => i.id === id ? { ...i, durum: 'PASIF' as const, updatedAt: getCurrentTimestamp() } : i)
+        }));
+        return { success: true };
+      },
+
+      aktifYap: (id) => {
+        const { items } = get();
+        const item = items.find(i => i.id === id);
+        if (!item) return { success: false, error: 'Kayıt bulunamadı.' };
+        set(state => ({
+          items: state.items.map(i => i.id === id ? { ...i, durum: 'AKTIF' as const, updatedAt: getCurrentTimestamp() } : i)
+        }));
+        return { success: true };
+      },
+
       getItemById: (id) => {
         return get().items.find(i => i.id === id);
       },
@@ -177,7 +200,7 @@ export const useLookupStore = create<LookupState>()(
       getSortedItemsByType: (type) => {
         return get()
           .items
-          .filter(i => i.lookupType === type)
+          .filter(i => i.lookupType === type && i.durum === 'AKTIF')
           .sort((a, b) => {
             // Önce sıra numarasına göre, sonra ada göre sırala
             if (a.sira !== undefined && b.sira !== undefined) {
@@ -202,7 +225,17 @@ export const useLookupStore = create<LookupState>()(
       },
 
       seedData: () => {
-        set({ items: defaultItems });
+        const { items } = get();
+        if (items.length === 0) {
+          set({ items: defaultItems });
+        } else {
+          // Mevcut kayıtlara durum yoksa AKTIF ekle
+          const updated = items.map(i => ({
+            ...i,
+            durum: i.durum || ('AKTIF' as const),
+          }));
+          set({ items: updated });
+        }
       },
     }),
     {

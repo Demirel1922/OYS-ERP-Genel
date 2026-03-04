@@ -77,6 +77,7 @@ export interface TedarikciKategorisi {
   kategoriKodu?: string;
   kategoriAdi: string;
   aciklama?: string;
+  durum: 'AKTIF' | 'PASIF';
   createdAt: string;
   updatedAt: string;
 }
@@ -99,6 +100,7 @@ export interface LookupItem {
   lookupType: LookupType;
   kod: string;
   ad: string;
+  durum: 'AKTIF' | 'PASIF';
   sira?: number;
   createdAt: string;
   updatedAt: string;

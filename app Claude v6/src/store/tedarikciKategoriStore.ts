@@ -12,6 +12,8 @@ interface TedarikciKategorisiState {
   addKategori: (data: TedarikciKategorisiFormData) => { success: boolean; error?: string };
   updateKategori: (id: string, data: Partial<TedarikciKategorisiFormData>) => { success: boolean; error?: string };
   deleteKategori: (id: string) => { success: boolean; error?: string };
+  pasifYap: (id: string) => { success: boolean; error?: string };
+  aktifYap: (id: string) => { success: boolean; error?: string };
   getKategoriById: (id: string) => TedarikciKategorisi | undefined;
   getKategoriAdiById: (id: string) => string;
   
@@ -29,6 +31,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'IPLIK',
     kategoriAdi: 'İplik',
     aciklama: 'Tüm iplik tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -37,6 +40,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'KOLI',
     kategoriAdi: 'Koli',
     aciklama: 'Ambalaj ve koli tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -45,6 +49,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'ETIKET',
     kategoriAdi: 'Etiket',
     aciklama: 'Etiket tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -53,6 +58,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'LASTIK',
     kategoriAdi: 'Lastik',
     aciklama: 'Lastik ve elastik bant tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -61,6 +67,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'KIMYA',
     kategoriAdi: 'Kimya',
     aciklama: 'Kimyasal madde ve boya tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -69,6 +76,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'AKSESUAR',
     kategoriAdi: 'Aksesuar',
     aciklama: 'Çorap aksesuarları tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -77,6 +85,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'DIS_HIZMET',
     kategoriAdi: 'Dış Hizmet',
     aciklama: 'Dış hizmet sağlayıcıları',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -85,6 +94,7 @@ const defaultKategoriler: TedarikciKategorisi[] = [
     kategoriKodu: 'AMBALAJ',
     kategoriAdi: 'Ambalaj',
     aciklama: 'Ambalaj malzemesi tedarikçileri',
+    durum: 'AKTIF',
     createdAt: '2024-01-01T00:00:00Z',
     updatedAt: '2024-01-01T00:00:00Z',
   },
@@ -117,6 +127,7 @@ export const useTedarikciKategoriStore = create<TedarikciKategorisiState>()(
         const yeniKategori: TedarikciKategorisi = {
           id: generateId(),
           ...data,
+          durum: 'AKTIF',
           createdAt: getCurrentTimestamp(),
           updatedAt: getCurrentTimestamp(),
         };
@@ -198,6 +209,24 @@ export const useTedarikciKategoriStore = create<TedarikciKategorisiState>()(
         return { success: true };
       },
 
+      pasifYap: (id) => {
+        const item = get().kategoriler.find(k => k.id === id);
+        if (!item) return { success: false, error: 'Kayıt bulunamadı.' };
+        set(state => ({
+          kategoriler: state.kategoriler.map(k => k.id === id ? { ...k, durum: 'PASIF' as const, updatedAt: getCurrentTimestamp() } : k)
+        }));
+        return { success: true };
+      },
+
+      aktifYap: (id) => {
+        const k = get().kategoriler.find(k => k.id === id);
+        if (!k) return { success: false, error: 'Kayıt bulunamadı.' };
+        set(state => ({
+          kategoriler: state.kategoriler.map(k => k.id === id ? { ...k, durum: 'AKTIF' as const, updatedAt: getCurrentTimestamp() } : k)
+        }));
+        return { success: true };
+      },
+
       getKategoriById: (id) => {
         return get().kategoriler.find(k => k.id === id);
       },
@@ -208,7 +237,16 @@ export const useTedarikciKategoriStore = create<TedarikciKategorisiState>()(
       },
 
       seedData: () => {
-        set({ kategoriler: defaultKategoriler });
+        const { kategoriler } = get();
+        if (kategoriler.length === 0) {
+          set({ kategoriler: defaultKategoriler });
+        } else {
+          const updated = kategoriler.map(k => ({
+            ...k,
+            durum: k.durum || ('AKTIF' as const),
+          }));
+          set({ kategoriler: updated });
+        }
       },
     }),
     {

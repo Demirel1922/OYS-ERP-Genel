@@ -151,7 +151,7 @@ export default function BilgiGirisleri() {
             <div className="p-2 bg-indigo-600 rounded-lg">
               <Database className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-gray-900">Bilgi Girişleri</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Bilgi Girişi</h1>
           </div>
           <p className="text-gray-600 ml-24">
             ERP sistemi için temel veri tanımlarını yönetin. Sipariş, satınalma ve üretim modüllerinde kullanılacak master data tanımları.
@@ -208,7 +208,7 @@ export default function BilgiGirisleri() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-teal-600 font-medium">Lookup</p>
+                  <p className="text-sm text-teal-600 font-medium">Tanım Değerleri</p>
                   <p className="text-2xl font-bold text-teal-900">{items.length}</p>
                 </div>
                 <Settings className="w-8 h-8 text-teal-400" />

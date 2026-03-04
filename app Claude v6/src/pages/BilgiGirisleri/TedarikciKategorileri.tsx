@@ -44,7 +44,7 @@ import type { TedarikciKategorisi, TedarikciKategorisiFormData } from '@/types';
 
 export default function TedarikciKategorileri() {
   const navigate = useNavigate();
-  const { kategoriler, addKategori, updateKategori, deleteKategori, seedData } = useTedarikciKategoriStore();
+  const { kategoriler, addKategori, updateKategori, deleteKategori, pasifYap, aktifYap, seedData } = useTedarikciKategoriStore();
   
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -211,19 +211,20 @@ export default function TedarikciKategorileri() {
                     <TableHead>Kategori Kodu</TableHead>
                     <TableHead>Kategori Adı</TableHead>
                     <TableHead>Açıklama</TableHead>
+                    <TableHead className="text-center">Durum</TableHead>
                     <TableHead className="text-right">İşlemler</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredKategoriler.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={4} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
                         {searchTerm ? 'Arama sonucu bulunamadı.' : 'Henüz kategori eklenmemiş.'}
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredKategoriler.map((kategori) => (
-                      <TableRow key={kategori.id} className="hover:bg-gray-50">
+                      <TableRow key={kategori.id} className={`hover:bg-gray-50 ${kategori.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}`}>
                         <TableCell>
                           {kategori.kategoriKodu ? (
                             <Badge variant="outline" className="font-mono">
@@ -237,25 +238,22 @@ export default function TedarikciKategorileri() {
                         <TableCell className="text-gray-600">
                           {kategori.aciklama || '-'}
                         </TableCell>
+                        <TableCell className="text-center">
+                          <Badge className={kategori.durum === 'AKTIF' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' : 'bg-gray-100 text-gray-600'}>
+                            {kategori.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenDialog(kategori)}
-                              title="Düzenle"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteClick(kategori)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Sil"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(kategori)} title="Düzenle"><Edit className="w-4 h-4" /></Button>
+                            {kategori.durum === 'AKTIF' ? (
+                              <Button variant="ghost" size="sm" onClick={() => { const r = pasifYap(kategori.id); if (r.success) toast.success('Pasif yapıldı'); else toast.error(r.error); }} className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">Pasif Yap</Button>
+                            ) : (
+                              <>
+                                <Button variant="ghost" size="sm" onClick={() => { const r = aktifYap(kategori.id); if (r.success) toast.success('Aktif yapıldı'); else toast.error(r.error); }} className="text-green-600 hover:text-green-700 hover:bg-green-50">Aktif Yap</Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(kategori)} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Sil"><Trash2 className="w-4 h-4" /></Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

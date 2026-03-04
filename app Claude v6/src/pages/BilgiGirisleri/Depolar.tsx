@@ -51,7 +51,7 @@ import type { Depo, DepoFormData, DepoTipi } from '@/types';
 
 export default function Depolar() {
   const navigate = useNavigate();
-  const { depolar, addDepo, updateDepo, deleteDepo, seedData } = useDepoStore();
+  const { depolar, addDepo, updateDepo, deleteDepo, pasifYap, aktifYap, seedData } = useDepoStore();
   
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -281,19 +281,20 @@ export default function Depolar() {
                     <TableHead>Depo Adı</TableHead>
                     <TableHead>Depo Tipi</TableHead>
                     <TableHead>Ek Bilgiler</TableHead>
+                    <TableHead className="text-center">Durum</TableHead>
                     <TableHead className="text-right">İşlemler</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredDepolar.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                         {searchTerm ? 'Arama sonucu bulunamadı.' : 'Henüz depo eklenmemiş.'}
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredDepolar.map((depo) => (
-                      <TableRow key={depo.id} className="hover:bg-gray-50">
+                      <TableRow key={depo.id} className={`hover:bg-gray-50 ${depo.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}`}>
                         <TableCell className="font-medium">
                           <Badge variant="outline" className="font-mono text-base px-3 py-1">
                             {depo.depoKodu}
@@ -309,25 +310,22 @@ export default function Depolar() {
                             </div>
                           )}
                         </TableCell>
+                        <TableCell className="text-center">
+                          <Badge className={depo.durum === 'AKTIF' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' : 'bg-gray-100 text-gray-600'}>
+                            {depo.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleOpenDialog(depo)}
-                              title="Düzenle"
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteClick(depo)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Sil"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                          <div className="flex justify-end gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => handleOpenDialog(depo)} title="Düzenle"><Edit className="w-4 h-4" /></Button>
+                            {depo.durum === 'AKTIF' ? (
+                              <Button variant="ghost" size="sm" onClick={() => { const r = pasifYap(depo.id); if (r.success) toast.success('Pasif yapıldı'); else toast.error(r.error); }} className="text-amber-600 hover:text-amber-700 hover:bg-amber-50">Pasif Yap</Button>
+                            ) : (
+                              <>
+                                <Button variant="ghost" size="sm" onClick={() => { const r = aktifYap(depo.id); if (r.success) toast.success('Aktif yapıldı'); else toast.error(r.error); }} className="text-green-600 hover:text-green-700 hover:bg-green-50">Aktif Yap</Button>
+                                <Button variant="ghost" size="sm" onClick={() => handleDeleteClick(depo)} className="text-red-600 hover:text-red-700 hover:bg-red-50" title="Sil"><Trash2 className="w-4 h-4" /></Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

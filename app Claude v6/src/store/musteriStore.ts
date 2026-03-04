@@ -203,6 +203,13 @@ export const useMusteriStore = create<MusteriState>()(
           },
         ];
 
+        const { musteriler } = get();
+        if (musteriler.length > 0) {
+          // Mevcut kayıtlara durum yoksa AKTIF ekle
+          const updated = musteriler.map((m: any) => ({ ...m, durum: m.durum || 'AKTIF' }));
+          set({ musteriler: updated });
+          return;
+        }
         set({ musteriler: seedMusteriler });
       },
     }),

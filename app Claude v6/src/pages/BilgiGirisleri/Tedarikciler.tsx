@@ -73,7 +73,7 @@ const ULKELER = [
 
 export default function Tedarikciler() {
   const navigate = useNavigate();
-  const { tedarikciler, addTedarikci, updateTedarikci, deleteTedarikci, seedData } = useTedarikciStore();
+  const { tedarikciler, addTedarikci, updateTedarikci, deleteTedarikci, pasifYap, aktifYap, seedData } = useTedarikciStore();
   const { kategoriler, seedData: seedKategoriler } = useTedarikciKategoriStore();
   
   // Dialog states
@@ -300,19 +300,20 @@ export default function Tedarikciler() {
                     <TableHead>Bölge</TableHead>
                     <TableHead>Ülke</TableHead>
                     <TableHead>Kategoriler</TableHead>
+                    <TableHead className="text-center">Durum</TableHead>
                     <TableHead className="text-right">İşlemler</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTedarikciler.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                      <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                         {searchTerm ? 'Arama sonucu bulunamadı.' : 'Henüz tedarikçi eklenmemiş.'}
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredTedarikciler.map((tedarikci) => (
-                      <TableRow key={tedarikci.id} className="hover:bg-gray-50">
+                      <TableRow key={tedarikci.id} className={`hover:bg-gray-50 ${tedarikci.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}`}>
                         <TableCell className="font-medium">
                           <Badge variant="outline" className="font-mono">
                             {tedarikci.tedarikciKodu}
@@ -341,8 +342,13 @@ export default function Tedarikciler() {
                             )}
                           </div>
                         </TableCell>
+                        <TableCell className="text-center">
+                          <Badge className={tedarikci.durum === 'AKTIF' ? 'bg-blue-100 text-blue-800 hover:bg-blue-100' : 'bg-gray-100 text-gray-600'}>
+                            {tedarikci.durum === 'AKTIF' ? 'Aktif' : 'Pasif'}
+                          </Badge>
+                        </TableCell>
                         <TableCell className="text-right">
-                          <div className="flex justify-end gap-2">
+                          <div className="flex justify-end gap-1">
                             <Button
                               variant="ghost"
                               size="sm"
@@ -351,15 +357,36 @@ export default function Tedarikciler() {
                             >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDeleteClick(tedarikci)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                              title="Sil"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
+                            {tedarikci.durum === 'AKTIF' ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => { const r = pasifYap(tedarikci.id); if (r.success) toast.success('Pasif yapıldı'); else toast.error(r.error); }}
+                                className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                              >
+                                Pasif Yap
+                              </Button>
+                            ) : (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => { const r = aktifYap(tedarikci.id); if (r.success) toast.success('Aktif yapıldı'); else toast.error(r.error); }}
+                                  className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                >
+                                  Aktif Yap
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteClick(tedarikci)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                  title="Sil"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>

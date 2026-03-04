@@ -3,14 +3,14 @@ import type { Module } from '@/types';
 export const MODULES: Module[] = [
   {
     id: '1',
-    title: 'Bilgiler ve Tanımlar',
+    title: 'Bilgi Girişi',
     description: 'Temel veri tanımları ve bilgi yönetimi',
     route: '/module/1',
     parent: null,
     hasChildren: true,
     adminOnly: false,
   },
-  // Bilgiler ve Tanımlar alt modülleri
+  // Bilgi Girişi alt modülleri
   {
     id: '1a',
     title: 'Müşteriler',
