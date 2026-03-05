@@ -87,7 +87,7 @@ const s = StyleSheet.create({
   colPrice: { width: '14%', fontSize: 7, textAlign: 'right' },
   colTotal: { width: '14%', fontSize: 7, textAlign: 'right' },
   thText: { fontSize: 7, fontWeight: 'bold' },
-  thSub: { fontSize: 6, color: '#666', fontStyle: 'italic' },
+  thSub: { fontSize: 6, color: '#888' },
   totals: { marginTop: 12, paddingTop: 8, borderTop: '2px solid #000' },
   totalRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 3 },
   totalLabel: { fontWeight: 'bold', marginRight: 10, fontSize: 9 },

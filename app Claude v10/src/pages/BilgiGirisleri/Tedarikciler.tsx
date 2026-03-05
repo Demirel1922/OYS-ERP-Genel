@@ -46,6 +46,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Search, Truck, ArrowLeft, Building2, Globe, Tag } from 'lucide-react';
+import { useSort, SortIcon } from '@/components/common/SortableTable';
 import { useTedarikciStore } from '@/store/tedarikciStore';
 import { useTedarikciKategoriStore } from '@/store/tedarikciKategoriStore';
 import type { TedarikciKategorisi, TedarikciKategorisiFormData } from '@/types';
@@ -312,12 +313,18 @@ export default function Tedarikciler() {
     }
   };
 
-  // Filtrelenmiş tedarikçiler
-  const filteredTedarikciler = tedarikciler.filter(t => 
-    t.tedarikciAdi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.tedarikciKodu.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (t.tedarikciUnvan && t.tedarikciUnvan.toLowerCase().includes(searchTerm.toLowerCase())) ||
-    (t.ulke && t.ulke.toLowerCase().includes(searchTerm.toLowerCase()))
+  // Sıralama
+  const { sortField, sortDir, toggleSort, sortFn } = useSort('tedarikciKodu');
+
+  // Filtrelenmiş ve sıralanmış tedarikçiler
+  const filteredTedarikciler = sortFn(
+    tedarikciler.filter(t => 
+      t.tedarikciAdi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      t.tedarikciKodu.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (t.tedarikciUnvan && t.tedarikciUnvan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (t.ulke && t.ulke.toLowerCase().includes(searchTerm.toLowerCase()))
+    ),
+    (t: any, f: string) => t[f] ?? ''
   );
 
   const getBolgeBadge = (bolge: 'ITHALAT' | 'IC_PIYASA') => {
@@ -404,10 +411,10 @@ export default function Tedarikciler() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Kod</TableHead>
-                    <TableHead>Ad / Ünvan</TableHead>
-                    <TableHead>Bölge</TableHead>
-                    <TableHead>Ülke</TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('tedarikciKodu')}>Kod <SortIcon field="tedarikciKodu" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('tedarikciAdi')}>Ad / Ünvan <SortIcon field="tedarikciAdi" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('bolge')}>Bölge <SortIcon field="bolge" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('ulke')}>Ülke <SortIcon field="ulke" sortField={sortField} sortDir={sortDir} /></TableHead>
                     <TableHead>Kategoriler</TableHead>
                     <TableHead className="text-center">Durum</TableHead>
                     <TableHead className="text-right">İşlemler</TableHead>

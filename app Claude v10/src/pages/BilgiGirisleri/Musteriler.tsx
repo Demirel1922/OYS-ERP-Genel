@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Search, Users, ArrowLeft, Building2, Globe, MoreHorizontal, Download } from 'lucide-react';
+import { useSort, SortIcon } from '@/components/common/SortableTable';
 import { useMusteriStore } from '@/store/musteriStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -228,12 +229,18 @@ export default function Musteriler() {
     }
   };
 
-  // Filtrelenmiş müşteriler
-  const filteredMusteriler = musteriler.filter(m => 
-    m.musteriUnvan.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.ormeciMusteriNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.musteriKisaKod.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.ulke.toLowerCase().includes(searchTerm.toLowerCase())
+  // Sıralama
+  const { sortField, sortDir, toggleSort, sortFn } = useSort('ormeciMusteriNo');
+
+  // Filtrelenmiş ve sıralanmış müşteriler
+  const filteredMusteriler = sortFn(
+    musteriler.filter(m => 
+      m.musteriUnvan.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.ormeciMusteriNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.musteriKisaKod.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      m.ulke.toLowerCase().includes(searchTerm.toLowerCase())
+    ),
+    (m: any, f: string) => m[f] ?? ''
   );
 
   const getBolgeBadge = (bolge: Bolge) => {
@@ -306,11 +313,11 @@ export default function Musteriler() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Örmeci No</TableHead>
-                    <TableHead>Kısa Kod</TableHead>
-                    <TableHead>Ünvan</TableHead>
-                    <TableHead>Bölge</TableHead>
-                    <TableHead>Ülke</TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('ormeciMusteriNo')}>Örmeci No <SortIcon field="ormeciMusteriNo" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('musteriKisaKod')}>Kısa Kod <SortIcon field="musteriKisaKod" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('musteriUnvan')}>Ünvan <SortIcon field="musteriUnvan" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('bolge')}>Bölge <SortIcon field="bolge" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('ulke')}>Ülke <SortIcon field="ulke" sortField={sortField} sortDir={sortDir} /></TableHead>
                     <TableHead>Ödeme Tipi</TableHead>
                     <TableHead>Vade</TableHead>
                     <TableHead className="text-center">Durum</TableHead>

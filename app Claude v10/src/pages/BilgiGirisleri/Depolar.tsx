@@ -44,6 +44,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Plus, Edit, Trash2, Search, Warehouse, ArrowLeft, Building, MapPin } from 'lucide-react';
+import { useSort, SortIcon } from '@/components/common/SortableTable';
 import { useDepoStore } from '@/store/depoStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -205,10 +206,16 @@ export default function Depolar() {
     }
   };
 
-  // Filtrelenmiş depolar
-  const filteredDepolar = depolar.filter(d => 
-    d.depoAdi.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    d.depoKodu.toString().includes(searchTerm)
+  // Sıralama
+  const { sortField, sortDir, toggleSort, sortFn } = useSort('depoKodu');
+
+  // Filtrelenmiş ve sıralanmış depolar
+  const filteredDepolar = sortFn(
+    depolar.filter(d => 
+      d.depoAdi.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      d.depoKodu.toString().includes(searchTerm)
+    ),
+    (d: any, f: string) => f === 'depoKodu' ? Number(d[f]) || 0 : (d[f] ?? '')
   );
 
   const getDepoTipiBadge = (tipi: DepoTipi) => {
@@ -277,9 +284,9 @@ export default function Depolar() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Depo Kodu</TableHead>
-                    <TableHead>Depo Adı</TableHead>
-                    <TableHead>Depo Tipi</TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('depoKodu')}>Depo Kodu <SortIcon field="depoKodu" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('depoAdi')}>Depo Adı <SortIcon field="depoAdi" sortField={sortField} sortDir={sortDir} /></TableHead>
+                    <TableHead className="cursor-pointer select-none" onClick={() => toggleSort('depoTipi')}>Depo Tipi <SortIcon field="depoTipi" sortField={sortField} sortDir={sortDir} /></TableHead>
                     <TableHead>Ek Bilgiler</TableHead>
                     <TableHead className="text-center">Durum</TableHead>
                     <TableHead className="text-right">İşlemler</TableHead>

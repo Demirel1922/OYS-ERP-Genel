@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import {
   Plus, FileSpreadsheet, AlertTriangle, AlertCircle, Package, MoreVertical,
-  Search, Eye, Trash2, BarChart3, ArrowLeft,
+  Search, Eye, Trash2, BarChart3, ArrowLeft, ArrowUpDown, ArrowUp, ArrowDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -67,6 +67,8 @@ export function SalesOrdersPage() {
   const { deleteOrderById, loading: deleteLoading } = useDeleteSalesOrder();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sortField, setSortField] = useState<string>('order_no');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [orderToDelete, setOrderToDelete] = useState<SalesOrder | null>(null);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -126,22 +128,53 @@ export function SalesOrdersPage() {
     );
   }
 
+  const toggleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDir('asc');
+    }
+  };
+
+  const SortIcon = ({ field }: { field: string }) => {
+    if (sortField !== field) return <ArrowUpDown className="w-3 h-3 ml-1 opacity-30" />;
+    return sortDir === 'asc' ? <ArrowUp className="w-3 h-3 ml-1" /> : <ArrowDown className="w-3 h-3 ml-1" />;
+  };
+
+  const sortOrders = (list: SalesOrder[]) => {
+    return [...list].sort((a, b) => {
+      let cmp = 0;
+      switch (sortField) {
+        case 'order_no': cmp = a.order_no.localeCompare(b.order_no); break;
+        case 'customer_name': cmp = a.customer_name.localeCompare(b.customer_name); break;
+        case 'status': cmp = a.status.localeCompare(b.status); break;
+        case 'termin': cmp = (a.confirmed_termin || '').localeCompare(b.confirmed_termin || ''); break;
+        case 'total_pairs': cmp = a.total_pairs - b.total_pairs; break;
+        case 'incoterm': cmp = (a.incoterm || '').localeCompare(b.incoterm || ''); break;
+        case 'total_amount': cmp = parsePriceString(a.total_amount) - parsePriceString(b.total_amount); break;
+        default: cmp = a.order_no.localeCompare(b.order_no);
+      }
+      return sortDir === 'asc' ? cmp : -cmp;
+    });
+  };
+
   const renderTable = (tabValue: string) => {
-    const tabOrders = getFilteredOrders(tabValue);
+    const tabOrders = sortOrders(getFilteredOrders(tabValue));
     return (
       <>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="text-left py-3 px-4 font-medium">Sipariş No</th>
-                <th className="text-left py-3 px-4 font-medium">Müşteri</th>
-                <th className="text-left py-3 px-4 font-medium">Durum</th>
-                <th className="text-left py-3 px-4 font-medium">Termin</th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('order_no')}><span className="flex items-center">Sipariş No<SortIcon field="order_no" /></span></th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('customer_name')}><span className="flex items-center">Müşteri<SortIcon field="customer_name" /></span></th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('status')}><span className="flex items-center">Durum<SortIcon field="status" /></span></th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('termin')}><span className="flex items-center">Termin<SortIcon field="termin" /></span></th>
                 {tabValue === 'shipped' && <th className="text-left py-3 px-4 font-medium">Gönderilme</th>}
-                <th className="text-center py-3 px-4 font-medium">Miktar</th>
-                <th className="text-left py-3 px-4 font-medium">Teslim Şekli</th>
-                <th className="text-right py-3 px-4 font-medium">Tutar</th>
+                <th className="text-center py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('total_pairs')}><span className="flex items-center justify-center">Miktar<SortIcon field="total_pairs" /></span></th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('incoterm')}><span className="flex items-center">Teslim Şekli<SortIcon field="incoterm" /></span></th>
+                <th className="text-right py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('total_amount')}><span className="flex items-center justify-end">Tutar<SortIcon field="total_amount" /></span></th>
                 <th className="text-center py-3 px-4 font-medium">İşlem</th>
               </tr>
             </thead>
