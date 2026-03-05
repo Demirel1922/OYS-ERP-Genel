@@ -56,30 +56,71 @@ export const db = new OysDatabase();
  * YY = Yılın son 2 hanesi
  * MMM = Müşteri no (ormeciMusteriNo), 3 hane
  * NNNN = Global sıra numarası, 4 hane (yıl değişince sıfırlanır)
+ * Çakışma kontrolü: Üretilen numara mevcutsa bir sonrakine atlar
  */
 export async function generateOrderNo(musteriNo: string): Promise<string> {
   const currentYear = new Date().getFullYear();
   const yy = String(currentYear).slice(-2); // "26"
   
   // Müşteri no'yu 3 haneye formatla
-  const numericPart = musteriNo.replace(/\D/g, ''); // sadece rakamları al
-  const mmm = numericPart.padStart(3, '0').slice(-3); // son 3 hane
+  const numericPart = musteriNo.replace(/\D/g, '');
+  const mmm = numericPart.padStart(3, '0').slice(-3);
   
   // Sayacı al veya oluştur
   let counter = await db.orderCounter.where('year').equals(currentYear).first();
   
   if (!counter) {
-    // Bu yıl için ilk sipariş
-    const id = await db.orderCounter.add({ year: currentYear, lastSeq: 1 });
-    return `${yy}${mmm}0001`;
+    const id = await db.orderCounter.add({ year: currentYear, lastSeq: 0 });
+    counter = { id: id as number, year: currentYear, lastSeq: 0 };
   }
   
-  // Sıra numarasını artır
-  const newSeq = counter.lastSeq + 1;
-  await db.orderCounter.update(counter.id!, { lastSeq: newSeq });
+  // Çakışma kontrolü ile numara üret
+  let seq = counter.lastSeq + 1;
+  let orderNo = `${yy}${mmm}${String(seq).padStart(4, '0')}`;
   
-  const nnnn = String(newSeq).padStart(4, '0');
-  return `${yy}${mmm}${nnnn}`;
+  // Mevcut siparişlerde bu sıra numarası (son 4 hane) kullanılmış mı kontrol et
+  // Müşteri farketmez, sadece sıra numarasına bak
+  let allOrders = await db.salesOrders.toArray();
+  const usedSeqs = new Set(
+    allOrders
+      .map(o => o.order_no)
+      .filter(no => no.startsWith(yy))
+      .map(no => parseInt(no.slice(-4), 10))
+      .filter(n => !isNaN(n))
+  );
+  
+  while (usedSeqs.has(seq)) {
+    seq++;
+  }
+  
+  orderNo = `${yy}${mmm}${String(seq).padStart(4, '0')}`;
+  
+  // Sayacı güncelle
+  await db.orderCounter.update(counter.id!, { lastSeq: seq });
+  
+  return orderNo;
+}
+
+/**
+ * Mevcut yılın sipariş sayacını oku
+ */
+export async function getOrderCounter(): Promise<number> {
+  const currentYear = new Date().getFullYear();
+  const counter = await db.orderCounter.where('year').equals(currentYear).first();
+  return counter?.lastSeq || 0;
+}
+
+/**
+ * Mevcut yılın sipariş sayacını elle güncelle
+ */
+export async function setOrderCounter(newSeq: number): Promise<void> {
+  const currentYear = new Date().getFullYear();
+  let counter = await db.orderCounter.where('year').equals(currentYear).first();
+  if (counter) {
+    await db.orderCounter.update(counter.id!, { lastSeq: newSeq });
+  } else {
+    await db.orderCounter.add({ year: currentYear, lastSeq: newSeq });
+  }
 }
 
 export async function addOrder(order: Omit<SalesOrder, 'id'>): Promise<string> {

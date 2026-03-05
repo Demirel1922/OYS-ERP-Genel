@@ -64,26 +64,34 @@ const formatQty = (qty: any): string => {
 
 // ----- STILLER (NotoSans fontu kullanılır) -----
 const s = StyleSheet.create({
-  page: { padding: 30, fontSize: 10, fontFamily: 'NotoSans' },
+  page: { padding: 35, fontSize: 10, fontFamily: 'NotoSans' },
   header: { marginBottom: 20, borderBottom: '2px solid #000', paddingBottom: 10 },
   title: { fontSize: 18, fontWeight: 'bold', marginBottom: 5 },
   subtitle: { fontSize: 10, color: '#666' },
-  section: { marginBottom: 15 },
-  sectionTitle: { fontSize: 12, fontWeight: 'bold', marginBottom: 8, backgroundColor: '#f0f0f0', padding: 5 },
-  row: { flexDirection: 'row', marginBottom: 5 },
-  label: { width: '40%', fontWeight: 'bold', fontSize: 9 },
-  value: { width: '60%', fontSize: 9 },
-  table: { marginTop: 10 },
-  tHead: { flexDirection: 'row', backgroundColor: '#f0f0f0', padding: 4, borderBottom: '1px solid #000' },
-  tRow: { flexDirection: 'row', padding: 4, borderBottom: '1px solid #ccc' },
-  tH: { flex: 1, fontSize: 8, fontWeight: 'bold' },
-  tC: { flex: 1, fontSize: 8 },
-  tCR: { flex: 1, fontSize: 8, textAlign: 'right' },
-  tCC: { flex: 1, fontSize: 8, textAlign: 'center' },
-  totals: { marginTop: 15, paddingTop: 10, borderTop: '2px solid #000' },
+  section: { marginBottom: 12 },
+  sectionTitle: { fontSize: 11, fontWeight: 'bold', marginBottom: 6, backgroundColor: '#f0f0f0', padding: '4 8' },
+  row: { flexDirection: 'row', marginBottom: 4, paddingLeft: 2 },
+  label: { width: '35%', fontWeight: 'bold', fontSize: 9 },
+  value: { width: '65%', fontSize: 9 },
+  table: { marginTop: 8 },
+  tHead: { flexDirection: 'row', backgroundColor: '#f0f0f0', paddingVertical: 4, paddingHorizontal: 2, borderBottom: '1px solid #000' },
+  tRow: { flexDirection: 'row', paddingVertical: 3, paddingHorizontal: 2, borderBottom: '1px solid #ddd' },
+  // Sütun genişlikleri oransal (toplam ~flex 32)
+  colProduct: { width: '14%', fontSize: 7 },
+  colGender: { width: '8%', fontSize: 7 },
+  colType: { width: '12%', fontSize: 7 },
+  colColor: { width: '10%', fontSize: 7 },
+  colSize: { width: '8%', fontSize: 7, textAlign: 'center' },
+  colQty: { width: '10%', fontSize: 7, textAlign: 'right' },
+  colUnit: { width: '10%', fontSize: 7, textAlign: 'center' },
+  colPrice: { width: '14%', fontSize: 7, textAlign: 'right' },
+  colTotal: { width: '14%', fontSize: 7, textAlign: 'right' },
+  thText: { fontSize: 7, fontWeight: 'bold' },
+  thSub: { fontSize: 6, color: '#666', fontStyle: 'italic' },
+  totals: { marginTop: 12, paddingTop: 8, borderTop: '2px solid #000' },
   totalRow: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 3 },
-  totalLabel: { fontWeight: 'bold', marginRight: 10 },
-  footer: { position: 'absolute', bottom: 30, left: 30, right: 30, flexDirection: 'row', justifyContent: 'space-between', borderTop: '1px solid #ccc', paddingTop: 10 },
+  totalLabel: { fontWeight: 'bold', marginRight: 10, fontSize: 9 },
+  footer: { position: 'absolute', bottom: 30, left: 35, right: 35, flexDirection: 'row', justifyContent: 'space-between', borderTop: '1px solid #ccc', paddingTop: 10 },
   sig: { width: '45%' },
   sigLine: { borderTop: '1px solid #000', marginTop: 30, paddingTop: 5 },
 });
@@ -122,6 +130,7 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
   const safeOrder = {
     order_no: order?.order_no || 'Bilinmiyor',
     customer_name: order?.customer_name || 'Bilinmiyor',
+    customer_po_no: order?.customer_po_no || '',
     order_date: order?.order_date,
     requested_termin: order?.requested_termin,
     confirmed_termin: order?.confirmed_termin,
@@ -172,6 +181,7 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
           <Text style={s.sectionTitle}>Genel Bilgiler / General Information</Text>
           <View style={s.row}><Text style={s.label}>Sipariş No / Order No:</Text><Text style={s.value}>{safeOrder.order_no}</Text></View>
           <View style={s.row}><Text style={s.label}>Müşteri / Customer:</Text><Text style={s.value}>{safeOrder.customer_name}</Text></View>
+          {safeOrder.customer_po_no ? <View style={s.row}><Text style={s.label}>Müşteri PO No / Customer PO:</Text><Text style={s.value}>{safeOrder.customer_po_no}</Text></View> : null}
           <View style={s.row}><Text style={s.label}>Sipariş Tarihi / Order Date:</Text><Text style={s.value}>{formatDate(safeOrder.order_date)}</Text></View>
           <View style={s.row}><Text style={s.label}>Durum / Status:</Text><Text style={s.value}>{STATUS_LABELS[safeOrder.status] || safeOrder.status}</Text></View>
         </View>
@@ -191,29 +201,29 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
           <Text style={s.sectionTitle}>Sipariş Kalemleri / Order Items</Text>
           <View style={s.table}>
             <View style={s.tHead}>
-              <Text style={s.tH}>Ürün / Product</Text>
-              <Text style={s.tH}>Cinsiyet</Text>
-              <Text style={s.tH}>Tip / Type</Text>
-              <Text style={s.tH}>Renk / Color</Text>
-              <Text style={{...s.tH, textAlign: 'center'}}>Beden</Text>
-              <Text style={{...s.tH, textAlign: 'right'}}>Miktar</Text>
-              <Text style={{...s.tH, textAlign: 'center'}}>Birim</Text>
-              <Text style={{...s.tH, textAlign: 'right'}}>Birim Fiyat</Text>
-              <Text style={{...s.tH, textAlign: 'right'}}>Tutar</Text>
+              <View style={s.colProduct}><Text style={s.thText}>Ürün</Text><Text style={s.thSub}>Product</Text></View>
+              <View style={s.colGender}><Text style={s.thText}>Cinsiyet</Text><Text style={s.thSub}>Gender</Text></View>
+              <View style={s.colType}><Text style={s.thText}>Tip</Text><Text style={s.thSub}>Type</Text></View>
+              <View style={s.colColor}><Text style={s.thText}>Renk</Text><Text style={s.thSub}>Color</Text></View>
+              <View style={{...s.colSize}}><Text style={{...s.thText, textAlign: 'center'}}>Beden</Text><Text style={{...s.thSub, textAlign: 'center'}}>Size</Text></View>
+              <View style={{...s.colQty}}><Text style={{...s.thText, textAlign: 'right'}}>Miktar</Text><Text style={{...s.thSub, textAlign: 'right'}}>Qty</Text></View>
+              <View style={{...s.colUnit}}><Text style={{...s.thText, textAlign: 'center'}}>Birim</Text><Text style={{...s.thSub, textAlign: 'center'}}>Unit</Text></View>
+              <View style={{...s.colPrice}}><Text style={{...s.thText, textAlign: 'right'}}>Birim Fiyat</Text><Text style={{...s.thSub, textAlign: 'right'}}>Unit Price</Text></View>
+              <View style={{...s.colTotal}}><Text style={{...s.thText, textAlign: 'right'}}>Tutar</Text><Text style={{...s.thSub, textAlign: 'right'}}>Amount</Text></View>
             </View>
             {safeOrder.lines.map((l: any, i: number) => {
               const lCurr = l?.currency || safeOrder.currency;
               return (
               <View key={i} style={s.tRow}>
-                <Text style={s.tC}>{l?.product_name || '-'}</Text>
-                <Text style={s.tC}>{getGender(l?.gender)}</Text>
-                <Text style={s.tC}>{getSockType(l?.sock_type)}</Text>
-                <Text style={s.tC}>{l?.color || '-'}</Text>
-                <Text style={s.tCC}>{l?.size || '-'}</Text>
-                <Text style={s.tCR}>{formatQty(l?.quantity)}</Text>
-                <Text style={s.tCC}>{getUnit(l?.price_unit)}</Text>
-                <Text style={s.tCR}>{formatMoney(l?.unit_price, lCurr)}</Text>
-                <Text style={s.tCR}>{formatMoney(l?.line_amount || (parseTrNumber(l?.quantity) * parseTrNumber(l?.unit_price)), lCurr)}</Text>
+                <Text style={s.colProduct}>{l?.product_name || '-'}</Text>
+                <Text style={s.colGender}>{getGender(l?.gender)}</Text>
+                <Text style={s.colType}>{getSockType(l?.sock_type)}</Text>
+                <Text style={s.colColor}>{l?.color || '-'}</Text>
+                <Text style={s.colSize}>{l?.size || '-'}</Text>
+                <Text style={s.colQty}>{formatQty(l?.quantity)}</Text>
+                <Text style={s.colUnit}>{getUnit(l?.price_unit)}</Text>
+                <Text style={s.colPrice}>{formatMoney(l?.unit_price, lCurr)}</Text>
+                <Text style={s.colTotal}>{formatMoney(l?.line_amount || (parseTrNumber(l?.quantity) * parseTrNumber(l?.unit_price)), lCurr)}</Text>
               </View>
               );
             })}

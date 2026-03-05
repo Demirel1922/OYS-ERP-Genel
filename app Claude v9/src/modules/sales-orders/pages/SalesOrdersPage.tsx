@@ -165,7 +165,7 @@ export function SalesOrdersPage() {
                   </td>
                   {tabValue === 'shipped' && <td className="py-3 px-4">{formatDate(order.shipped_at)}</td>}
                   <td className="py-3 px-4 text-center">{formatQuantity(order.total_pairs)} çift</td>
-                  <td className="py-3 px-4">{(order as any).incoterm || '-'}</td>
+                  <td className="py-3 px-4">{order.incoterm || '-'}</td>
                   <td className="py-3 px-4 text-right font-medium">{formatMoney2(order.total_amount, order.currency)}</td>
                   <td className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>

@@ -147,6 +147,7 @@ export function SalesOrderDetail() {
                   <div className="space-y-2">
                     <div className="flex justify-between"><span className="text-gray-600">Sipariş No:</span><span className="font-medium">{order.order_no}</span></div>
                     <div className="flex justify-between"><span className="text-gray-600">Müşteri:</span><span className="font-medium">{order.customer_name}</span></div>
+                    {order.customer_po_no && <div className="flex justify-between"><span className="text-gray-600">Müşteri PO No:</span><span className="font-medium">{order.customer_po_no}</span></div>}
                     <div className="flex justify-between"><span className="text-gray-600">Durum:</span><Badge className={STATUS_COLORS[order.status]}>{STATUS_LABELS[order.status]}</Badge></div>
                     <div className="flex justify-between"><span className="text-gray-600">Sipariş Tarihi:</span><span>{formatDate(order.order_date)}</span></div>
                   </div>
@@ -164,6 +165,7 @@ export function SalesOrderDetail() {
                       <div className="flex justify-between"><span className="text-gray-600">Performans:</span><span className={`font-medium ${terminPerf.color}`}>{terminPerf.label}</span></div>
                     )}
                     <div className="flex justify-between"><span className="text-gray-600">Ödeme Koşulları:</span><span>{order.payment_terms}</span></div>
+                    {order.incoterm && <div className="flex justify-between"><span className="text-gray-600">Teslim Şekli:</span><span>{order.incoterm}</span></div>}
                   </div>
                 </div>
 
