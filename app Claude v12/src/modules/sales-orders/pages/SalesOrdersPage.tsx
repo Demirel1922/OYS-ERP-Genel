@@ -148,6 +148,7 @@ export function SalesOrdersPage() {
       switch (sortField) {
         case 'order_no': cmp = a.order_no.localeCompare(b.order_no); break;
         case 'customer_name': cmp = a.customer_name.localeCompare(b.customer_name); break;
+        case 'customer_po_no': cmp = (a.customer_po_no || '').localeCompare(b.customer_po_no || ''); break;
         case 'status': cmp = a.status.localeCompare(b.status); break;
         case 'termin': cmp = (a.confirmed_termin || '').localeCompare(b.confirmed_termin || ''); break;
         case 'total_pairs': cmp = a.total_pairs - b.total_pairs; break;
@@ -169,6 +170,7 @@ export function SalesOrdersPage() {
               <tr className="border-b">
                 <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('order_no')}><span className="flex items-center">Sipariş No<SortIcon field="order_no" /></span></th>
                 <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('customer_name')}><span className="flex items-center">Müşteri<SortIcon field="customer_name" /></span></th>
+                <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('customer_po_no')}><span className="flex items-center">PO No<SortIcon field="customer_po_no" /></span></th>
                 <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('status')}><span className="flex items-center">Durum<SortIcon field="status" /></span></th>
                 <th className="text-left py-3 px-4 font-medium cursor-pointer select-none" onClick={() => toggleSort('termin')}><span className="flex items-center">Termin<SortIcon field="termin" /></span></th>
                 {tabValue === 'shipped' && <th className="text-left py-3 px-4 font-medium">Gönderilme</th>}
@@ -187,6 +189,7 @@ export function SalesOrdersPage() {
                 >
                   <td className="py-3 px-4 font-medium">{order.order_no}</td>
                   <td className="py-3 px-4">{order.customer_name}</td>
+                  <td className="py-3 px-4 text-gray-600">{order.customer_po_no || '-'}</td>
                   <td className="py-3 px-4">
                     <Badge className={STATUS_COLORS[order.status]}>{STATUS_LABELS[order.status]}</Badge>
                   </td>

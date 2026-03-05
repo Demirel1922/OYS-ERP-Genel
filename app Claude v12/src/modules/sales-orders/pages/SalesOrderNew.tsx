@@ -19,7 +19,6 @@ import { toast } from 'sonner';
 import { salesOrderSchema, type SalesOrderFormData } from '@/modules/sales-orders/domain/schema';
 import {
   CURRENCIES,
-  PRICE_UNITS,
   type SalesOrder,
   type SalesOrderLine,
 } from '@/modules/sales-orders/domain/types';
@@ -38,6 +37,7 @@ import { Header } from '@/components/common/Header';
 import { useMusteriStore } from '@/store/musteriStore';
 import { useRenkStore } from '@/store/renkStore';
 import { useLookupStore } from '@/store/lookupStore';
+import { toTitleCaseTR } from '@/utils/titleCase';
 
 function makeEmptyLine(defaultCurrency: string = 'TRY') {
   return {
@@ -79,6 +79,12 @@ export function SalesOrderNew() {
   const bedenler = useMemo(() => getSortedItemsByType('BEDEN'), [lookupItems]);
   const cinsiyetler = useMemo(() => getSortedItemsByType('CINSIYET'), [lookupItems]);
   const corapTipleri = useMemo(() => getSortedItemsByType('TIP'), [lookupItems]);
+
+  // Birim kodundan adını al
+  const getBirimAdi = useCallback((kod: string) => {
+    const birim = lookupItems.find(i => i.lookupType === 'BIRIM' && i.kod === kod);
+    return birim?.ad || kod || '-';
+  }, [lookupItems]);
 
   const form = useForm<SalesOrderFormData>({
     resolver: zodResolver(salesOrderSchema),
@@ -353,7 +359,7 @@ export function SalesOrderNew() {
           <Form {...form}>
             <form className="space-y-6">
               {/* Header */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
                   <Label>Sipariş No</Label>
                   <Input
@@ -467,14 +473,15 @@ export function SalesOrderNew() {
                           <div className="flex items-center gap-1 text-green-700 text-xs font-medium shrink-0">
                             <Check className="w-3 h-3" /> Eklendi
                           </div>
-                          <div className="flex-1 grid grid-cols-2 md:grid-cols-9 gap-2 text-sm">
+                          <div className="flex-1 grid grid-cols-2 md:grid-cols-10 gap-2 text-sm">
                             <div><span className="text-gray-500 text-xs block">Ürün</span><span className="font-medium">{watchedLine?.product_name || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Cinsiyet</span><span>{watchedLine?.gender || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Tip</span><span>{watchedLine?.sock_type || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Renk</span><span>{watchedLine?.color || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Beden</span><span>{watchedLine?.size || '-'}</span></div>
                             <div><span className="text-gray-500 text-xs block">Miktar</span><span className="font-medium">{formatQuantity(watchedLine?.quantity ?? 0)}</span></div>
-                            <div><span className="text-gray-500 text-xs block">Çift</span><span className="font-medium">{formatQuantity(watchedLine?.line_total_pairs ?? 0)}</span></div>
+                            <div><span className="text-gray-500 text-xs block">Birim</span><span>{getBirimAdi(watchedLine?.price_unit)}</span></div>
+                            <div><span className="text-gray-500 text-xs block">Toplam Çift</span><span className="font-medium">{formatQuantity(watchedLine?.line_total_pairs ?? 0)}</span></div>
                             <div><span className="text-gray-500 text-xs block">Birim Fiyat</span><span>{watchedLine?.unit_price || '0'} {lineCurrency}</span></div>
                             <div><span className="text-gray-500 text-xs block">Tutar</span><span className="font-bold">{formatMoney2(watchedLine?.line_amount, lineCurrency)}</span></div>
                           </div>
@@ -499,7 +506,7 @@ export function SalesOrderNew() {
                         <FormField control={form.control} name={`lines.${index}.product_name`} render={({ field }) => (
                           <FormItem>
                             <FormLabel>Ürün Adı</FormLabel>
-                            <FormControl><Input {...field} placeholder="Ürün adı" disabled={isConfirmed} /></FormControl>
+                            <FormControl><Input {...field} placeholder="Ürün adı" disabled={isConfirmed} onBlur={() => { field.onBlur(); if (field.value) form.setValue(field.name, toTitleCaseTR(field.value)); }} /></FormControl>
                             <FormMessage />
                           </FormItem>
                         )} />

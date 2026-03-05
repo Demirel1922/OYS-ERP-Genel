@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, CheckCircle, Truck, Ban, FileText, AlertCircle } from 'lucide-react';
 import type { OrderStatus } from '@/modules/sales-orders/domain/types';
 import { STATUS_LABELS, PRICE_UNIT_LABELS, SOCK_TYPE_LABELS } from '@/modules/sales-orders/domain/types';
+import { useLookupStore } from '@/store/lookupStore';
 import { formatMoney2, formatDate, formatQuantity } from '@/modules/sales-orders/utils/format';
 import { parsePriceString, canTransitionStatus, approveOrder, shipOrder, cancelOrder } from '@/modules/sales-orders/services/orderService';
 import { useSalesOrder } from '@/modules/sales-orders/hooks/useSalesOrder';
@@ -26,6 +27,11 @@ export function SalesOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { order, loading, error, refetch } = useSalesOrder(id);
+  const { items: lookupItems } = useLookupStore();
+  const getBirimAdi = (kod: string) => {
+    const birim = lookupItems.find(i => i.lookupType === 'BIRIM' && i.kod === kod);
+    return birim?.ad || PRICE_UNIT_LABELS[kod] || kod || '-';
+  };
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<'approve' | 'ship' | 'cancel' | null>(null);
 
@@ -214,7 +220,7 @@ export function SalesOrderDetail() {
                           <td className="py-3 px-4">{line.color}</td>
                           <td className="py-3 px-4">{line.size}</td>
                           <td className="py-3 px-4 text-right">{formatQuantity(line.quantity)}</td>
-                          <td className="py-3 px-4">{PRICE_UNIT_LABELS[line.price_unit] || line.price_unit}</td>
+                          <td className="py-3 px-4">{getBirimAdi(line.price_unit)}</td>
                           <td className="py-3 px-4 text-right">{formatMoney2(line.unit_price, lineCurrency)}</td>
                           <td className="py-3 px-4 text-right">{formatQuantity(line.line_total_pairs)}</td>
                           <td className="py-3 px-4 text-right font-medium">{formatMoney2(line.line_amount, lineCurrency)}</td>

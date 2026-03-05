@@ -29,7 +29,6 @@ import BilgiGirisleri from '@/pages/BilgiGirisleri';
 import Musteriler from '@/pages/BilgiGirisleri/Musteriler';
 import Tedarikciler from '@/pages/BilgiGirisleri/Tedarikciler';
 import Depolar from '@/pages/BilgiGirisleri/Depolar';
-import TedarikciKategorileri from '@/pages/BilgiGirisleri/TedarikciKategorileri';
 import GenelCorapBilgileri from '@/pages/BilgiGirisleri/GenelCorapBilgileri';
 import IplikTanimlari from '@/pages/IplikTanimlari';
 
@@ -136,14 +135,6 @@ function AppRoutes() {
         element={
           <ModuleProtectedRoute>
             <Depolar />
-          </ModuleProtectedRoute>
-        }
-      />
-      <Route
-        path="/module/1/tedarikci-kategorileri"
-        element={
-          <ModuleProtectedRoute>
-            <TedarikciKategorileri />
           </ModuleProtectedRoute>
         }
       />

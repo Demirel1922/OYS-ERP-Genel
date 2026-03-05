@@ -11,15 +11,18 @@ export async function exportOrdersToExcel(orders: SalesOrder[]): Promise<void> {
   worksheet.columns = [
     { header: 'Sipariş No', key: 'order_no', width: 20 },
     { header: 'Müşteri', key: 'customer_name', width: 25 },
+    { header: 'Müşteri PO No', key: 'customer_po_no', width: 18 },
     { header: 'Durum', key: 'status', width: 15 },
     { header: 'Talep Edilen Termin', key: 'requested_termin', width: 20 },
     { header: 'Onaylı Termin', key: 'confirmed_termin', width: 18 },
     { header: 'Miktar (Çift)', key: 'total_pairs', width: 15 },
     { header: 'Tutar', key: 'total_amount', width: 15 },
     { header: 'Para Birimi', key: 'currency', width: 12 },
+    { header: 'Teslim Şekli', key: 'incoterm', width: 14 },
     { header: 'Sipariş Tarihi', key: 'order_date', width: 18 },
     { header: 'Ödeme Koşulları', key: 'payment_terms', width: 18 },
     { header: 'Notlar', key: 'notes', width: 30 },
+    { header: 'Dahili Notlar', key: 'internal_notes', width: 30 },
   ];
 
   const headerRow = worksheet.getRow(1);
@@ -34,15 +37,18 @@ export async function exportOrdersToExcel(orders: SalesOrder[]): Promise<void> {
     worksheet.addRow({
       order_no: order.order_no,
       customer_name: order.customer_name,
+      customer_po_no: order.customer_po_no || '',
       status: STATUS_LABELS[order.status],
       requested_termin: formatDate(order.requested_termin),
       confirmed_termin: formatDate(order.confirmed_termin),
       total_pairs: order.total_pairs,
       total_amount: formatMoneyRaw(order.total_amount),
       currency: order.currency,
+      incoterm: order.incoterm || '',
       order_date: formatDate(order.order_date),
       payment_terms: order.payment_terms,
       notes: order.notes || '',
+      internal_notes: order.internal_notes || '',
     });
   });
 
@@ -129,23 +135,33 @@ export function exportToCSV(orders: SalesOrder[]): void {
   const headers = [
     'Sipariş No',
     'Müşteri',
+    'Müşteri PO No',
     'Durum',
     'Talep Edilen Termin',
     'Onaylı Termin',
     'Miktar (Çift)',
     'Tutar',
     'Para Birimi',
+    'Teslim Şekli',
+    'Ödeme Koşulları',
+    'Notlar',
+    'Dahili Notlar',
   ];
 
   const rows = orders.map((order) => [
     order.order_no,
     order.customer_name,
+    order.customer_po_no || '',
     STATUS_LABELS[order.status],
     formatDate(order.requested_termin),
     formatDate(order.confirmed_termin),
     order.total_pairs,
     formatMoneyRaw(order.total_amount),
     order.currency,
+    order.incoterm || '',
+    order.payment_terms,
+    order.notes || '',
+    order.internal_notes || '',
   ]);
 
   const delimiter = ';';

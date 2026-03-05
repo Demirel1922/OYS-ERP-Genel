@@ -141,7 +141,7 @@ function KategorilerInlineTab() {
           <DialogHeader><DialogTitle>{editKat ? 'Kategori Düzenle' : 'Yeni Kategori'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2"><Label>Kategori Kodu</Label><Input value={form.kategoriKodu || ''} onChange={(e) => setForm({ ...form, kategoriKodu: e.target.value })} placeholder="örn: IPLIK" /></div>
-            <div className="space-y-2"><Label>Kategori Adı *</Label><Input value={form.kategoriAdi} onChange={(e) => setForm({ ...form, kategoriAdi: e.target.value })} placeholder="Kategori adı" /></div>
+            <div className="space-y-2"><Label>Kategori Adı *</Label><Input value={form.kategoriAdi} onChange={(e) => setForm({ ...form, kategoriAdi: e.target.value })} onBlur={() => setForm(f => ({ ...f, kategoriAdi: toTitleCaseTR(f.kategoriAdi) }))} placeholder="Kategori adı" /></div>
             <div className="space-y-2"><Label>Açıklama</Label><Input value={form.aciklama || ''} onChange={(e) => setForm({ ...form, aciklama: e.target.value })} placeholder="Açıklama" /></div>
           </div>
           <DialogFooter><Button variant="outline" onClick={() => setIsOpen(false)}>İptal</Button><Button onClick={handleSave}>{editKat ? 'Güncelle' : 'Ekle'}</Button></DialogFooter>
@@ -152,6 +152,7 @@ function KategorilerInlineTab() {
 }
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { toTitleCaseTR } from '@/utils/titleCase';
 import type { Tedarikci, TedarikciFormData } from '@/types';
 
 // Ülke listesi
@@ -553,6 +554,7 @@ export default function Tedarikciler() {
                       id="tedarikciAdi"
                       value={formData.tedarikciAdi}
                       onChange={(e) => setFormData({ ...formData, tedarikciAdi: e.target.value })}
+                      onBlur={() => setFormData(f => ({ ...f, tedarikciAdi: toTitleCaseTR(f.tedarikciAdi) }))}
                       placeholder="örn: Bursa İplik San. A.Ş."
                     />
                   </div>
@@ -563,6 +565,7 @@ export default function Tedarikciler() {
                     id="tedarikciUnvan"
                     value={formData.tedarikciUnvan}
                     onChange={(e) => setFormData({ ...formData, tedarikciUnvan: e.target.value })}
+                    onBlur={() => setFormData(f => ({ ...f, tedarikciUnvan: toTitleCaseTR(f.tedarikciUnvan || '') }))}
                     placeholder="Tam ünvan..."
                   />
                 </div>

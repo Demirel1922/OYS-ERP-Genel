@@ -41,6 +41,7 @@ import { Plus, Edit, Trash2, Search, Footprints, ArrowLeft, Ruler, Users, Packag
 import { useLookupStore } from '@/store/lookupStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { toTitleCaseTR } from '@/utils/titleCase';
 import type { LookupItem, LookupItemFormData, LookupType } from '@/types';
 
 const LOOKUP_TYPES: { id: LookupType; label: string; labelTekil: string; icon: React.ElementType; description: string }[] = [
@@ -363,6 +364,7 @@ export default function GenelCorapBilgileri() {
                     id="ad"
                     value={formData.ad}
                     onChange={(e) => setFormData({ ...formData, ad: e.target.value })}
+                    onBlur={() => setFormData(f => ({ ...f, ad: toTitleCaseTR(f.ad) }))}
                     placeholder="Ekranda görünecek ad"
                   />
                 </div>

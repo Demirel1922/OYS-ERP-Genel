@@ -1,5 +1,5 @@
 // ============================================
-// RENKLER SEKMESİ - Kompakt Tablo Görünümü
+// İŞLEM TİPLERİ SEKMESİ - Kompakt Tablo Görünümü
 // ============================================
 // AKSİYON MATRİSİ:
 // - Aktif: Düzenle + Pasif Yap (Sil YOK)
@@ -36,48 +36,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
-import { useRenkStore } from '@/store/renkStore';
+import { Plus, Edit, Trash2, Search, ArrowDown, ArrowUp } from 'lucide-react';
+import { useIslemTipiStore } from '@/store/islemTipiStore';
 import { toast } from 'sonner';
-import type { Renk, RenkFormData } from '@/types';
+import { toTitleCaseTR } from '@/utils/titleCase';
+import type { IslemTipi, IslemTipiFormData, HareketYonu } from '@/types';
 
-export default function RenklerTab() {
-  const { renkler, addRenk, updateRenk, deleteRenk, pasifRenk, aktifRenk } = useRenkStore();
+export default function IslemTipleriTab() {
+  const { islemTipleri, addIslemTipi, updateIslemTipi, deleteIslemTipi, pasifYap, aktifYap } = useIslemTipiStore();
   
   // Dialog states
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isPasifDialogOpen, setIsPasifDialogOpen] = useState(false);
   const [isAktifDialogOpen, setIsAktifDialogOpen] = useState(false);
-  const [editingRenk, setEditingRenk] = useState<Renk | null>(null);
-  const [deletingRenk, setDeletingRenk] = useState<Renk | null>(null);
-  const [pasifRenkItem, setPasifRenkItem] = useState<Renk | null>(null);
-  const [aktifRenkItem, setAktifRenkItem] = useState<Renk | null>(null);
+  const [editingIslem, setEditingIslem] = useState<IslemTipi | null>(null);
+  const [deletingIslem, setDeletingIslem] = useState<IslemTipi | null>(null);
+  const [pasifIslem, setPasifIslem] = useState<IslemTipi | null>(null);
+  const [aktifIslem, setAktifIslem] = useState<IslemTipi | null>(null);
   
   // Filtre states
   const [searchTerm, setSearchTerm] = useState('');
+  const [yönFilter, setYönFilter] = useState<'all' | 'GIRIS' | 'CIKIS'>('all');
   const [durumFilter, setDurumFilter] = useState<'all' | 'AKTIF' | 'PASIF'>('all');
   
   // Form state
-  const [formData, setFormData] = useState<RenkFormData>({
-    renkAdi: '',
+  const [formData, setFormData] = useState<IslemTipiFormData>({
+    islemAdi: '',
+    hareketYonu: 'GIRIS',
+    aciklama: '',
     durum: 'AKTIF',
   });
 
   const resetForm = () => {
     setFormData({
-      renkAdi: '',
+      islemAdi: '',
+      hareketYonu: 'GIRIS',
+      aciklama: '',
       durum: 'AKTIF',
     });
-    setEditingRenk(null);
+    setEditingIslem(null);
   };
 
-  const handleOpenDialog = (renk?: Renk) => {
-    if (renk) {
-      setEditingRenk(renk);
+  const handleOpenDialog = (islem?: IslemTipi) => {
+    if (islem) {
+      setEditingIslem(islem);
       setFormData({
-        renkAdi: renk.renkAdi,
-        durum: renk.durum,
+        islemAdi: islem.islemAdi,
+        hareketYonu: islem.hareketYonu,
+        aciklama: islem.aciklama || '',
+        durum: islem.durum,
       });
     } else {
       resetForm();
@@ -91,24 +99,24 @@ export default function RenklerTab() {
   };
 
   const handleSubmit = () => {
-    if (!formData.renkAdi.trim()) {
-      toast.error('Renk adı zorunludur');
+    if (!formData.islemAdi.trim()) {
+      toast.error('İşlem Adı zorunludur');
       return;
     }
 
     let result;
-    if (editingRenk) {
-      result = updateRenk(editingRenk.id, formData);
+    if (editingIslem) {
+      result = updateIslemTipi(editingIslem.id, formData);
       if (result.success) {
-        toast.success('Renk güncellendi');
+        toast.success('İşlem tipi güncellendi');
         handleCloseDialog();
       } else {
         toast.error(result.error || 'Güncelleme başarısız');
       }
     } else {
-      result = addRenk(formData);
+      result = addIslemTipi(formData);
       if (result.success) {
-        toast.success('Renk eklendi');
+        toast.success('İşlem tipi eklendi');
         handleCloseDialog();
       } else {
         toast.error(result.error || 'Ekleme başarısız');
@@ -116,66 +124,84 @@ export default function RenklerTab() {
     }
   };
 
-  const handlePasifClick = (renk: Renk) => {
-    setPasifRenkItem(renk);
+  const handlePasifClick = (islem: IslemTipi) => {
+    setPasifIslem(islem);
     setIsPasifDialogOpen(true);
   };
 
-  const handleAktifClick = (renk: Renk) => {
-    setAktifRenkItem(renk);
+  const handleAktifClick = (islem: IslemTipi) => {
+    setAktifIslem(islem);
     setIsAktifDialogOpen(true);
   };
 
-  const handleDeleteClick = (renk: Renk) => {
-    setDeletingRenk(renk);
+  const handleDeleteClick = (islem: IslemTipi) => {
+    setDeletingIslem(islem);
     setIsDeleteDialogOpen(true);
   };
 
   const handleConfirmPasif = () => {
-    if (pasifRenkItem) {
-      const result = pasifRenk(pasifRenkItem.id);
+    if (pasifIslem) {
+      const result = pasifYap(pasifIslem.id);
       if (result.success) {
-        toast.success('Renk pasif yapıldı');
+        toast.success('İşlem tipi pasif yapıldı');
       } else {
         toast.error(result.error || 'İşlem başarısız');
       }
-      setPasifRenkItem(null);
+      setPasifIslem(null);
       setIsPasifDialogOpen(false);
     }
   };
 
   const handleConfirmAktif = () => {
-    if (aktifRenkItem) {
-      const result = aktifRenk(aktifRenkItem.id);
+    if (aktifIslem) {
+      const result = aktifYap(aktifIslem.id);
       if (result.success) {
-        toast.success('Renk aktif yapıldı');
+        toast.success('İşlem tipi aktif yapıldı');
       } else {
         toast.error(result.error || 'İşlem başarısız');
       }
-      setAktifRenkItem(null);
+      setAktifIslem(null);
       setIsAktifDialogOpen(false);
     }
   };
 
   const handleConfirmDelete = () => {
-    if (deletingRenk) {
-      const result = deleteRenk(deletingRenk.id);
+    if (deletingIslem) {
+      const result = deleteIslemTipi(deletingIslem.id);
       if (result.success) {
-        toast.success('Renk silindi');
+        toast.success('İşlem tipi silindi');
       } else {
         toast.error(result.error || 'Silme başarısız');
       }
-      setDeletingRenk(null);
+      setDeletingIslem(null);
       setIsDeleteDialogOpen(false);
     }
   };
 
-  // Filtrelenmiş renkler
-  const filteredRenkler = renkler.filter(r => {
-    const matchesSearch = r.renkAdi.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesDurum = durumFilter === 'all' || r.durum === durumFilter;
-    return matchesSearch && matchesDurum;
+  // Filtrelenmiş işlem tipleri
+  const filteredIslemTipleri = islemTipleri.filter(i => {
+    const matchesSearch = i.islemAdi.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesYön = yönFilter === 'all' || i.hareketYonu === yönFilter;
+    const matchesDurum = durumFilter === 'all' || i.durum === durumFilter;
+    return matchesSearch && matchesYön && matchesDurum;
   });
+
+  const getYönBadge = (yon: HareketYonu) => {
+    if (yon === 'GIRIS') {
+      return (
+        <Badge className="bg-green-100 text-green-800 hover:bg-green-100 flex items-center gap-1 w-fit">
+          <ArrowDown className="w-3 h-3" />
+          Giriş
+        </Badge>
+      );
+    }
+    return (
+      <Badge className="bg-red-100 text-red-800 hover:bg-red-100 flex items-center gap-1 w-fit">
+        <ArrowUp className="w-3 h-3" />
+        Çıkış
+      </Badge>
+    );
+  };
 
   const getDurumBadge = (durum: 'AKTIF' | 'PASIF') => {
     if (durum === 'AKTIF') {
@@ -185,8 +211,8 @@ export default function RenklerTab() {
   };
 
   // Sil butonu gösterilme şartı: Sadece pasif kayıtlarda
-  const showSilButton = (renk: Renk) => {
-    return renk.durum === 'PASIF';
+  const showSilButton = (islem: IslemTipi) => {
+    return islem.durum === 'PASIF';
   };
 
   return (
@@ -197,12 +223,22 @@ export default function RenklerTab() {
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
-              placeholder="Renk ara..."
+              placeholder="İşlem adı ara..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 w-48"
             />
           </div>
+          <Select value={yönFilter} onValueChange={(v: any) => setYönFilter(v)}>
+            <SelectTrigger className="w-36">
+              <SelectValue placeholder="Hareket Yönü" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tümü</SelectItem>
+              <SelectItem value="GIRIS">Giriş</SelectItem>
+              <SelectItem value="CIKIS">Çıkış</SelectItem>
+            </SelectContent>
+          </Select>
           <Select value={durumFilter} onValueChange={(v: any) => setDurumFilter(v)}>
             <SelectTrigger className="w-36">
               <SelectValue placeholder="Durum" />
@@ -216,51 +252,55 @@ export default function RenklerTab() {
         </div>
         <Button onClick={() => handleOpenDialog()} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Yeni Renk
+          Yeni İşlem Tipi
         </Button>
       </div>
 
-      {/* Kompakt Tablo - Sadece metin, swatch yok */}
+      {/* Kompakt Tablo */}
       <div className="border rounded-lg overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>
-              <th className="px-4 py-3 text-left font-medium text-gray-700">Renk Adı</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">İşlem Adı</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Hareket Yönü</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-700">Açıklama</th>
               <th className="px-4 py-3 text-center font-medium text-gray-700">Durum</th>
               <th className="px-4 py-3 text-center font-medium text-gray-700">İşlemler</th>
             </tr>
           </thead>
           <tbody className="divide-y">
-            {filteredRenkler.length === 0 ? (
+            {filteredIslemTipleri.length === 0 ? (
               <tr>
-                <td colSpan={3} className="px-4 py-8 text-center text-gray-500">
-                  Renk bulunamadı.
+                <td colSpan={5} className="px-4 py-8 text-center text-gray-500">
+                  İşlem tipi bulunamadı.
                 </td>
               </tr>
             ) : (
-              filteredRenkler.map((renk) => (
+              filteredIslemTipleri.map((islem) => (
                 <tr 
-                  key={renk.id} 
-                  className={`hover:bg-gray-50 ${renk.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}`}
+                  key={islem.id} 
+                  className={`hover:bg-gray-50 ${islem.durum === 'PASIF' ? 'opacity-60 bg-gray-50' : ''}`}
                 >
-                  <td className="px-4 py-3 font-medium">{renk.renkAdi}</td>
-                  <td className="px-4 py-3 text-center">{getDurumBadge(renk.durum)}</td>
+                  <td className="px-4 py-3 font-medium">{islem.islemAdi}</td>
+                  <td className="px-4 py-3">{getYönBadge(islem.hareketYonu)}</td>
+                  <td className="px-4 py-3 text-gray-600">{islem.aciklama || '-'}</td>
+                  <td className="px-4 py-3 text-center">{getDurumBadge(islem.durum)}</td>
                   <td className="px-4 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
                       <Button 
                         variant="ghost" 
                         size="sm" 
-                        onClick={() => handleOpenDialog(renk)} 
+                        onClick={() => handleOpenDialog(islem)} 
                         title="Düzenle"
                       >
                         <Edit className="w-4 h-4" />
                       </Button>
-                      {renk.durum === 'AKTIF' ? (
+                      {islem.durum === 'AKTIF' ? (
                         // AKTIF: Düzenle + Pasif Yap (Sil YOK)
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => handlePasifClick(renk)}
+                          onClick={() => handlePasifClick(islem)}
                           className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                           title="Pasif Yap"
                         >
@@ -272,17 +312,17 @@ export default function RenklerTab() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            onClick={() => handleAktifClick(renk)}
+                            onClick={() => handleAktifClick(islem)}
                             className="text-green-600 hover:text-green-700 hover:bg-green-50"
                             title="Aktif Yap"
                           >
                             Aktif Yap
                           </Button>
-                          {showSilButton(renk) && (
+                          {showSilButton(islem) && (
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              onClick={() => handleDeleteClick(renk)}
+                              onClick={() => handleDeleteClick(islem)}
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
                               title="Sil"
                             >
@@ -305,25 +345,56 @@ export default function RenklerTab() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {editingRenk ? <Edit className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-              {editingRenk ? 'Renk Düzenle' : 'Yeni Renk'}
+              {editingIslem ? <Edit className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+              {editingIslem ? 'İşlem Tipi Düzenle' : 'Yeni İşlem Tipi'}
             </DialogTitle>
             <DialogDescription>
-              Renk adını girin. Renk adı benzersiz olmalıdır.
+              İşlem tipi bilgilerini girin. İşlem adı benzersiz olmalıdır.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="renkAdi">Renk Adı *</Label>
+              <Label htmlFor="islemAdi">İşlem Adı *</Label>
               <Input
-                id="renkAdi"
-                value={formData.renkAdi}
-                onChange={(e) => setFormData({ ...formData, renkAdi: e.target.value })}
-                placeholder="örn: Koyu Mavi"
+                id="islemAdi"
+                value={formData.islemAdi}
+                onChange={(e) => setFormData({ ...formData, islemAdi: e.target.value })}
+                onBlur={() => setFormData(f => ({ ...f, islemAdi: toTitleCaseTR(f.islemAdi) }))}
+                placeholder="örn: İplik Alımı"
               />
             </div>
-            {editingRenk && (
+            <div className="space-y-2">
+              <Label htmlFor="hareketYonu">Hareket Yönü *</Label>
+              <Select
+                value={formData.hareketYonu}
+                onValueChange={(v: HareketYonu) => setFormData({ ...formData, hareketYonu: v })}
+                disabled={!!editingIslem}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="GIRIS">Giriş</SelectItem>
+                  <SelectItem value="CIKIS">Çıkış</SelectItem>
+                </SelectContent>
+              </Select>
+              {editingIslem && (
+                <p className="text-xs text-amber-600">
+                  * Kullanımdaki işlem tipinde hareket yönü değiştirilemez
+                </p>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="aciklama">Açıklama</Label>
+              <Input
+                id="aciklama"
+                value={formData.aciklama}
+                onChange={(e) => setFormData({ ...formData, aciklama: e.target.value })}
+                placeholder="İsteğe bağlı açıklama..."
+              />
+            </div>
+            {editingIslem && (
               <div className="space-y-2">
                 <Label htmlFor="durum">Durum</Label>
                 <Select
@@ -347,7 +418,7 @@ export default function RenklerTab() {
               İptal
             </Button>
             <Button onClick={handleSubmit}>
-              {editingRenk ? 'Güncelle' : 'Ekle'}
+              {editingIslem ? 'Güncelle' : 'Ekle'}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -359,11 +430,11 @@ export default function RenklerTab() {
           <AlertDialogHeader>
             <AlertDialogTitle>Pasif Yap</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-gray-900">{pasifRenkItem?.renkAdi}</span> rengini pasif yapmak istediğinize emin misiniz?
+              <span className="font-semibold text-gray-900">{pasifIslem?.islemAdi}</span> işlem tipini pasif yapmak istediğinize emin misiniz?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setPasifRenkItem(null)}>
+            <AlertDialogCancel onClick={() => setPasifIslem(null)}>
               İptal
             </AlertDialogCancel>
             <AlertDialogAction 
@@ -382,11 +453,11 @@ export default function RenklerTab() {
           <AlertDialogHeader>
             <AlertDialogTitle>Aktif Yap</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-gray-900">{aktifRenkItem?.renkAdi}</span> rengini aktif yapmak istediğinize emin misiniz?
+              <span className="font-semibold text-gray-900">{aktifIslem?.islemAdi}</span> işlem tipini aktif yapmak istediğinize emin misiniz?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setAktifRenkItem(null)}>
+            <AlertDialogCancel onClick={() => setAktifIslem(null)}>
               İptal
             </AlertDialogCancel>
             <AlertDialogAction 
@@ -409,7 +480,7 @@ export default function RenklerTab() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => setDeletingRenk(null)}>
+            <AlertDialogCancel onClick={() => setDeletingIslem(null)}>
               Vazgeç
             </AlertDialogCancel>
             <AlertDialogAction 

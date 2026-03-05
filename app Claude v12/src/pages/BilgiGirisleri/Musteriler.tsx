@@ -48,6 +48,7 @@ import { useSort, SortIcon } from '@/components/common/SortableTable';
 import { useMusteriStore } from '@/store/musteriStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { toTitleCaseTR } from '@/utils/titleCase';
 import type { Musteri, MusteriFormData, Bolge, OdemeVadesiBirim } from '@/types';
 
 // Ödeme tipi seçenekleri
@@ -424,6 +425,7 @@ export default function Musteriler() {
                       id="musteriUnvan"
                       value={formData.musteriUnvan}
                       onChange={(e) => setFormData({ ...formData, musteriUnvan: e.target.value })}
+                      onBlur={() => setFormData(f => ({ ...f, musteriUnvan: toTitleCaseTR(f.musteriUnvan) }))}
                       placeholder="örn: ECC GmbH"
                     />
                   </div>
@@ -478,6 +480,7 @@ export default function Musteriler() {
                       id="adres"
                       value={formData.adres}
                       onChange={(e) => setFormData({ ...formData, adres: e.target.value })}
+                      onBlur={() => setFormData(f => ({ ...f, adres: toTitleCaseTR(f.adres) }))}
                       placeholder="Tam adres..."
                     />
                   </div>

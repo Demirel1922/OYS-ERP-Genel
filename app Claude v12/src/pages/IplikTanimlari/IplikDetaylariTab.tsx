@@ -39,6 +39,7 @@ import {
 import { Plus, Edit, Trash2, Search } from 'lucide-react';
 import { useIplikDetayStore } from '@/store/iplikDetayStore';
 import { toast } from 'sonner';
+import { toTitleCaseTR } from '@/utils/titleCase';
 
 export default function IplikDetaylariTab() {
   const { 
@@ -577,6 +578,7 @@ export default function IplikDetaylariTab() {
               <Input
                 value={detayForm.detayAdi}
                 onChange={(e) => setDetayForm({ ...detayForm, detayAdi: e.target.value })}
+                onBlur={() => setDetayForm(f => ({ ...f, detayAdi: toTitleCaseTR(f.detayAdi) }))}
                 placeholder="örn: Karde"
               />
             </div>

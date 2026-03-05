@@ -48,6 +48,7 @@ import { useSort, SortIcon } from '@/components/common/SortableTable';
 import { useDepoStore } from '@/store/depoStore';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { toTitleCaseTR } from '@/utils/titleCase';
 import type { Depo, DepoFormData, DepoTipi } from '@/types';
 
 export default function Depolar() {
@@ -387,6 +388,7 @@ export default function Depolar() {
                       id="depoAdi"
                       value={formData.depoAdi}
                       onChange={(e) => setFormData({ ...formData, depoAdi: e.target.value })}
+                      onBlur={() => setFormData(f => ({ ...f, depoAdi: toTitleCaseTR(f.depoAdi) }))}
                       placeholder="örn: Ana Depo - Kayseri"
                     />
                   </div>
