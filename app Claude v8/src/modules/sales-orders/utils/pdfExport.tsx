@@ -1,5 +1,6 @@
 import { Document, Page, Text, View, StyleSheet, pdf, Font } from '@react-pdf/renderer';
 import type { SalesOrder } from '@/modules/sales-orders/domain/types';
+import { useLookupStore as useLookupStoreRef } from '@/store/lookupStore';
 
 // ----- FONT TANIMLAMA (Türkçe karakterler için Noto Sans) -----
 // window.location.origin ile tam URL oluştur (web worker uyumlu)
@@ -129,13 +130,23 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
     incoterm: order?.incoterm || '',
     currency: order?.currency || 'TL',
     status: order?.status || 'draft',
+    notes: order?.notes || '',
+    internal_notes: order?.internal_notes || '',
     lines: Array.isArray(order?.lines) ? order.lines : []
   };
 
   // Artık değerler doğrudan Türkçe string olarak geliyor (store'dan)
   const getGender = (v: string) => v || '-';
   const getSockType = (v: string) => v || '-';
-  const getUnit = (v: string) => PRICE_UNIT_LABELS[v] || v || '-';
+  const getUnit = (v: string) => {
+    // lookupStore'dan birim adını al
+    try {
+      const store = useLookupStoreRef.getState();
+      const birim = store.items.find((i: any) => i.lookupType === 'BIRIM' && i.kod === v);
+      if (birim) return birim.ad;
+    } catch {}
+    return PRICE_UNIT_LABELS[v] || v || '-';
+  };
 
   let totalPairs = 0;
   let totalAmount = 0;
@@ -214,6 +225,18 @@ function OrderPDFDocument({ order }: { order: SalesOrder }) {
           <View style={s.totalRow}><Text style={s.totalLabel}>Toplam Çift / Total Pairs:</Text><Text>{formatQty(totalPairs)}</Text></View>
           <View style={s.totalRow}><Text style={s.totalLabel}>Toplam Tutar / Total Amount:</Text><Text>{formatMoney(totalAmount, safeOrder.currency)}</Text></View>
         </View>
+
+        {/* Notlar */}
+        {(safeOrder.notes || safeOrder.internal_notes) && (
+          <View style={s.section}>
+            {safeOrder.notes ? (
+              <View style={s.row}><Text style={s.label}>Notlar / Notes:</Text><Text style={s.value}>{safeOrder.notes}</Text></View>
+            ) : null}
+            {safeOrder.internal_notes ? (
+              <View style={s.row}><Text style={s.label}>Dahili Notlar / Internal:</Text><Text style={s.value}>{safeOrder.internal_notes}</Text></View>
+            ) : null}
+          </View>
+        )}
 
         {/* İmza Alanı */}
         <View style={s.footer}>

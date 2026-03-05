@@ -48,7 +48,7 @@ function makeEmptyLine(defaultCurrency: string = 'TRY') {
     color: '',
     size: '',
     quantity: 0,
-    price_unit: 'pair' as const,
+    price_unit: 'BIRIM_CIFT' as const,
     unit_price: '',
     currency: defaultCurrency as any,
     line_total_pairs: 0,
@@ -145,7 +145,7 @@ export function SalesOrderNew() {
   }, [recalculateLine]);
 
   const handlePriceUnitChange = useCallback((index: number, value: string) => {
-    recalculateLine(index, { price_unit: value as 'pair' | 'dozen' | 'box' });
+    recalculateLine(index, { price_unit: value });
   }, [recalculateLine]);
 
   const handleLinePriceChange = useCallback((index: number, value: string) => {
@@ -590,7 +590,7 @@ export function SalesOrderNew() {
                             <Select onValueChange={(val) => handlePriceUnitChange(index, val)} value={field.value} disabled={isConfirmed}>
                               <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
                               <SelectContent>
-                                {PRICE_UNITS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                                {getSortedItemsByType('BIRIM').map((b) => <SelectItem key={b.kod} value={b.kod}>{b.ad}</SelectItem>)}
                               </SelectContent>
                             </Select>
                             <FormMessage />

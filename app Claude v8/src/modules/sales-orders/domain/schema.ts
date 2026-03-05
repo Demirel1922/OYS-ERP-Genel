@@ -9,7 +9,7 @@ const salesOrderLineSchema = z.object({
   color: z.string().min(1, 'Renk zorunlu'),
   size: z.string().min(1, 'Beden zorunlu'),
   quantity: z.number().min(1, 'Miktar en az 1 olmalı'),
-  price_unit: z.enum(['pair', 'dozen', 'box']),
+  price_unit: z.string().min(1, 'Birim seçiniz'),
   unit_price: z.string().min(1, 'Birim fiyat zorunlu').refine((val) => {
     const normalized = val.replace(/\./g, '').replace(',', '.');
     const num = parseFloat(normalized);

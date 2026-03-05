@@ -140,6 +140,7 @@ export function SalesOrdersPage() {
                 <th className="text-left py-3 px-4 font-medium">Termin</th>
                 {tabValue === 'shipped' && <th className="text-left py-3 px-4 font-medium">Gönderilme</th>}
                 <th className="text-center py-3 px-4 font-medium">Miktar</th>
+                <th className="text-left py-3 px-4 font-medium">Teslim Şekli</th>
                 <th className="text-right py-3 px-4 font-medium">Tutar</th>
                 <th className="text-center py-3 px-4 font-medium">İşlem</th>
               </tr>
@@ -164,6 +165,7 @@ export function SalesOrdersPage() {
                   </td>
                   {tabValue === 'shipped' && <td className="py-3 px-4">{formatDate(order.shipped_at)}</td>}
                   <td className="py-3 px-4 text-center">{formatQuantity(order.total_pairs)} çift</td>
+                  <td className="py-3 px-4">{(order as any).incoterm || '-'}</td>
                   <td className="py-3 px-4 text-right font-medium">{formatMoney2(order.total_amount, order.currency)}</td>
                   <td className="py-3 px-4 text-center" onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>

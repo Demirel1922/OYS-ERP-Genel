@@ -12,7 +12,7 @@ export interface SalesOrderLine {
   color: string; // Dinamik - renkStore'dan geliyor
   size: string;
   quantity: number;
-  price_unit: 'pair' | 'dozen' | 'box';
+  price_unit: string;
   line_total_pairs: number;
   unit_price: string;
   currency?: Currency;

@@ -2,6 +2,18 @@ import { toast } from 'sonner';
 import { updateOrder, addPriceAuditLog } from '@/lib/db';
 import type { SalesOrder, OrderStatus, SalesOrderLine } from '@/modules/sales-orders/domain/types';
 import { PRICE_UNIT_MULTIPLIERS } from '@/modules/sales-orders/domain/types';
+import { useLookupStore } from '@/store/lookupStore';
+
+// lookupStore'dan birim çarpanını al (dinamik)
+function getBirimCarpan(priceUnit: string): number {
+  try {
+    const store = useLookupStore.getState();
+    const birimItem = store.items.find(i => i.lookupType === 'BIRIM' && i.kod === priceUnit);
+    if (birimItem?.carpan) return birimItem.carpan;
+  } catch {}
+  // Fallback: eski hardcoded değerler
+  return PRICE_UNIT_MULTIPLIERS[priceUnit] || 1;
+}
 
 const VALID_STATUS_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   draft: ['approved', 'cancelled'],
@@ -89,7 +101,7 @@ export function calculateLineTotals(
   line: Omit<SalesOrderLine, 'line_total_pairs' | 'line_amount'>,
   headerUnitPrice: string
 ): { line_total_pairs: number; line_amount: string } {
-  const multiplier = PRICE_UNIT_MULTIPLIERS[line.price_unit] || 1;
+  const multiplier = getBirimCarpan(line.price_unit);
   const lineTotalPairs = line.quantity * multiplier;
   const priceSource = line.unit_price || headerUnitPrice || '0';
   const priceNum = parsePriceString(priceSource);
