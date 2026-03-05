@@ -79,12 +79,7 @@ export function Login() {
               {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
             </Button>
           </form>
-
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-            <p className="font-semibold mb-2">Demo Hesaplar:</p>
-            <p><strong>Admin:</strong> admin / admin123</p>
-            <p><strong>User:</strong> user / user123</p>
-          </div>
+         
         </CardContent>
       </Card>
     </div>
