@@ -114,13 +114,6 @@ export function NumuneDetayModal({ isOpen, onClose, numuneId }: NumuneDetayModal
 
   if (!isOpen || !data) return null;
 
-  const generatePDF = () => {
-    // TODO: PDF özelliği şu an devre dışı — jspdf dependency eklenmediği için.
-    // İleride @react-pdf/renderer ile uyarlanacak.
-    console.warn('PDF export özelliği henüz aktif değildir.');
-    alert('PDF export özelliği henüz aktif değildir. Bu özellik ileride eklenecektir.');
-  };
-
   const viewPDF = () => {
     // TODO: PDF özelliği şu an devre dışı — jspdf dependency eklenmediği için.
     // İleride @react-pdf/renderer ile uyarlanacak.
