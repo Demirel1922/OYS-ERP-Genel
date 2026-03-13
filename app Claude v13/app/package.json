@@ -60,7 +60,9 @@
     "dexie": "^3.2.4",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
-    "@react-pdf/renderer": "^4.3.2"
+    "@react-pdf/renderer": "^4.3.2",
+    "jspdf": "^4.2.0",
+    "jspdf-autotable": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
