@@ -130,7 +130,7 @@ export function NumuneDetayModal({ isOpen, onClose, numuneId }: NumuneDetayModal
 
   const handleEmail = () => {
     const subject = encodeURIComponent(`Sample Request - ${data.numuneNo}`);
-    const body = encodeURIComponent(`Sample Details / Numune Detayi:
+    const body = encodeURIComponent(`Sample Details / Numune Detayı:
 
 Sample No (Numune No): ${data.numuneNo}
 Customer (Musteri): ${data.musteriKodu || data.musteri || '-'}
@@ -149,7 +149,7 @@ Please find the PDF attached. / PDF ekte bulunmaktadir.`);
         
         {/* HEADER */}
         <div className="flex justify-between items-center mb-4 border-b pb-4">
-          <h2 className="text-xl font-bold">Numune Detayi (Sample Detail)</h2>
+          <h2 className="text-xl font-bold">Numune Detayı (Sample Detail)</h2>
           <div className="flex gap-2">
             <button onClick={viewPDF} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
               <Eye size={18} /> PDF Goruntule

@@ -126,7 +126,7 @@ export function NumuneTaleplerPage() {
   };
 
   const handleDelete = (id: number) => {
-    if (window.confirm('Bu numuneyi silmek istediginize emin misiniz?')) {
+    if (window.confirm('Bu numuneyi silmek istediğinize emin misiniz?')) {
       const liste = JSON.parse(localStorage.getItem('oys_numune_listesi') || '[]');
       const yeniListe = liste.filter((n: NumuneItem) => n.id !== id);
       localStorage.setItem('oys_numune_listesi', JSON.stringify(yeniListe));
