@@ -39,6 +39,16 @@ import { SalesOrderNew } from '@/modules/sales-orders/pages/SalesOrderNew';
 import { SalesOrderDetail } from '@/modules/sales-orders/pages/SalesOrderDetail';
 import { AnalyticsPage } from '@/modules/sales-orders/pages/AnalyticsPage';
 
+// Numune Modülü (Modül 2) sayfaları
+import { NumuneDashboard } from '@/modules/numune/pages/NumuneDashboard';
+import { NumuneTaleplerPage } from '@/modules/numune/pages/NumuneTaleplerPage';
+import { YeniNumune } from '@/modules/numune/pages/YeniNumune';
+import { MusteriAnalizi } from '@/modules/numune/pages/MusteriAnalizi';
+
+// Üretim Hazırlık Modülü (Modül 2b) sayfaları
+import { UretimHazirlikListePage } from '@/modules/uretim-hazirlik/pages/UretimHazirlikListePage';
+import { UretimHazirlikDetayPage } from '@/modules/uretim-hazirlik/pages/UretimHazirlikDetayPage';
+
 // Auth check wrapper
 function AuthWrapper({ children }: { children: React.ReactNode }) {
   const { checkAuth } = useAuthStore();
@@ -299,6 +309,58 @@ function AppRoutes() {
           <ProtectedRoute requireAdmin={true}>
             <Admin />
           </ProtectedRoute>
+        }
+      />
+
+      {/* Numune Yönetimi Ana Modülü (Modül 2) */}
+      <Route
+        path="/module/2"
+        element={
+          <ModuleProtectedRoute>
+            <NumuneDashboard />
+          </ModuleProtectedRoute>
+        }
+      />
+      <Route
+        path="/module/2/talepler"
+        element={
+          <ModuleProtectedRoute>
+            <NumuneTaleplerPage />
+          </ModuleProtectedRoute>
+        }
+      />
+      <Route
+        path="/module/2/yeni"
+        element={
+          <ModuleProtectedRoute>
+            <YeniNumune />
+          </ModuleProtectedRoute>
+        }
+      />
+      <Route
+        path="/module/2/musteri-analizi"
+        element={
+          <ModuleProtectedRoute>
+            <MusteriAnalizi />
+          </ModuleProtectedRoute>
+        }
+      />
+
+      {/* Üretim Hazırlık Modülü (Modül 2b) */}
+      <Route
+        path="/module/2/uretim-hazirlik"
+        element={
+          <ModuleProtectedRoute>
+            <UretimHazirlikListePage />
+          </ModuleProtectedRoute>
+        }
+      />
+      <Route
+        path="/module/2/uretim-hazirlik/detay/:id"
+        element={
+          <ModuleProtectedRoute>
+            <UretimHazirlikDetayPage />
+          </ModuleProtectedRoute>
         }
       />
 
