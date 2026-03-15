@@ -152,10 +152,10 @@ Please find the PDF attached. / PDF ekte bulunmaktadir.`);
           <h2 className="text-xl font-bold">Numune Detayı (Sample Detail)</h2>
           <div className="flex gap-2">
             <button onClick={viewPDF} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700">
-              <Eye size={18} /> PDF Goruntule
+              <Eye size={18} /> PDF Görüntüle
             </button>
             <button onClick={downloadPDF} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-              <FileText size={18} /> PDF Indir
+              <FileText size={18} /> PDF İndir
             </button>
             <button onClick={handleEmail} className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
               <Mail size={18} /> Email
